@@ -1,57 +1,88 @@
 import { useSyncExternalStore } from "react";
 import { SAMPLES, type Kind, type Severity } from "@redline/core";
 
-export type DeskFile = { id: string; name: string; text: string; own: boolean; note?: string; kind?: Kind };
+export type DeskFile = { id: string; name: string; text: string; own: boolean; note?: string; kind?: Kind; edited?: boolean };
 
-const KEY = "redline-files-v1";
-const load = (): DeskFile[] => {
+function load<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as DeskFile[]).filter((f) => typeof f.name === "string" && typeof f.text === "string") : [];
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
-    return [];
+    return fallback;
   }
-};
+}
+function persist(key: string, v: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(v));
+  } catch {
+    /* storage full or blocked: changes still work for this visit */
+  }
+}
 
-/** Your own files live in this browser only; nothing is uploaded. */
-let own: DeskFile[] = load();
+const FILES = "redline-files-v1";
+const EDITS = "redline-edits-v1";
+
+/** Your own files, and your edits to the examples, live in this browser only. */
+let own: DeskFile[] = load<DeskFile[]>(FILES, []).filter((f) => typeof f.name === "string" && typeof f.text === "string");
+let edits: Record<string, string> = load(EDITS, {});
+let version = 0;
 const listeners = new Set<() => void>();
-const save = () => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(own));
-  } catch {
-    /* storage full or blocked: the files still work for this visit */
-  }
+const changed = () => {
+  version++;
   listeners.forEach((l) => l());
 };
 
-export const SAMPLE_FILES: DeskFile[] = SAMPLES.map((s) => ({ id: `sample:${s.name}`, name: s.name, text: s.text, own: false, note: s.note }));
+const SAMPLE_BASE: DeskFile[] = SAMPLES.map((s) => ({ id: `sample:${s.name}`, name: s.name, text: s.text, own: false, note: s.note }));
 
-export function useOwnFiles() {
-  return useSyncExternalStore(
+/** Every file in the workspace: the example project (with your edits), then yours. */
+export function allFiles(): DeskFile[] {
+  return [...SAMPLE_BASE.map((f) => (edits[f.id] !== undefined ? { ...f, text: edits[f.id], edited: true } : f)), ...own];
+}
+export const useFiles = () => {
+  useSyncExternalStore(
     (l) => (listeners.add(l), () => listeners.delete(l)),
-    () => own,
+    () => version,
   );
+  return allFiles();
+};
+export const findFile = (id: string | null) => allFiles().find((f) => f.id === id);
+
+export function saveText(id: string, text: string) {
+  if (id.startsWith("sample:")) {
+    const base = SAMPLE_BASE.find((f) => f.id === id);
+    if (base && base.text === text) delete edits[id];
+    else edits = { ...edits, [id]: text };
+    persist(EDITS, edits);
+  } else {
+    own = own.map((f) => (f.id === id ? { ...f, text } : f));
+    persist(FILES, own);
+  }
+  changed();
+}
+export function resetSample(id: string) {
+  const { [id]: _drop, ...rest } = edits;
+  void _drop;
+  edits = rest;
+  persist(EDITS, edits);
+  changed();
 }
 
 export function addFile(name: string, text: string, kind?: Kind): DeskFile {
   const existing = own.find((f) => f.name === name);
   const f: DeskFile = { id: existing?.id ?? `own:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, name, text, own: true, kind };
   own = existing ? own.map((o) => (o.id === f.id ? f : o)) : [...own, f];
-  save();
+  persist(FILES, own);
+  changed();
   return f;
 }
 export function removeFile(id: string) {
   own = own.filter((f) => f.id !== id);
-  save();
+  persist(FILES, own);
+  changed();
 }
 
-export function findFile(id: string | null): DeskFile | undefined {
-  return SAMPLE_FILES.find((f) => f.id === id) ?? own.find((f) => f.id === id);
-}
-
-export const SEV_WORD: Record<Severity, string> = { critical: "critical", high: "high", medium: "medium", low: "low" };
-export const isPencil = (s: Severity) => s === "low";
+export const SEV_CLASS: Record<Severity, "sq-crit" | "sq-med" | "sq-low"> = { critical: "sq-crit", high: "sq-crit", medium: "sq-med", low: "sq-low" };
+export const SEV_COLOR: Record<Severity, string> = { critical: "var(--crit)", high: "var(--crit)", medium: "var(--med)", low: "var(--low)" };
 
 export function download(name: string, text: string) {
   // octet-stream, so the browser keeps the exact name instead of adding ".txt".

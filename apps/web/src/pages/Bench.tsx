@@ -36,26 +36,26 @@ export function Bench() {
 
   return (
     <div className="max-w-5xl">
-      <h1 className="text-[2.2rem] font-bold leading-[1.05] tracking-[-0.02em]">The test bench</h1>
+      <h1 className="text-[1.7rem] font-semibold leading-tight tracking-[-0.02em]">The test bench</h1>
       <p className="mt-3 max-w-3xl text-[1.02rem] leading-relaxed text-muted">
         {r.fixtures} config files were written by hand and labelled with the problems they contain, from wide-open setups to configs that follow Mozilla's and Kubernetes' own hardening guides. Every one of the {r.rules} rules is tested this way. This proves the rules do what they say on these files; it is a small, hand-made set, so real configs with unusual layouts can still trip a rule. If one does, it's a bug worth reporting.
       </p>
 
-      <div className="mt-6 grid gap-px overflow-hidden rounded-[4px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-6 grid gap-px overflow-hidden rounded-[10px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
         {stats.map(([v, l, sub]) => (
-          <div key={l} className="bg-paper p-4 text-paper-ink">
-            <div className="font-type text-2xl font-bold">{v}</div>
+          <div key={l} className="bg-panel p-4">
+            <div className="text-[1.6rem] font-semibold tabular-nums tracking-[-0.02em]">{v}</div>
             <div className="mt-1 text-sm font-semibold">{l}</div>
-            <div className="mt-0.5 text-xs text-paper-faint">{sub}</div>
+            <div className="mt-0.5 text-xs text-faint">{sub}</div>
           </div>
         ))}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <section className="printout py-4">
+        <section className="rounded-[10px] border border-line bg-panel py-3">
           <h2 className="px-2 text-lg font-bold">Every test file</h2>
           <table className="mt-2 w-full text-[14px]">
-            <thead className="text-left text-paper-faint">
+            <thead className="text-left text-faint">
               <tr>
                 <th className="px-2 py-1.5 font-medium">File</th>
                 <th className="px-2 py-1.5 font-medium">Type</th>
@@ -66,12 +66,12 @@ export function Bench() {
             </thead>
             <tbody>
               {r.files.map((f, i) => (
-                <tr key={f.name} className={i % 6 < 3 ? "bg-[var(--paper-bar)]" : ""}>
+                <tr key={f.name} className={i % 2 ? "bg-[var(--panel-2)]" : ""}>
                   <td className="px-2 py-1">{f.name}</td>
-                  <td className="whitespace-nowrap px-2 py-1 text-paper-faint">{f.kind}</td>
-                  <td className="px-2 py-1 text-right font-type">{f.expected}</td>
-                  <td className="px-2 py-1 text-right font-type">{f.found}</td>
-                  <td className="hand px-2 py-1 text-center text-[20px] leading-none" style={{ color: f.ok ? "var(--ink-blue)" : "var(--pen)" }} aria-label={f.ok ? "matches" : "does not match"}>
+                  <td className="whitespace-nowrap px-2 py-1 text-faint">{f.kind}</td>
+                  <td className="px-2 py-1 text-right font-mono">{f.expected}</td>
+                  <td className="px-2 py-1 text-right font-mono">{f.found}</td>
+                  <td className="px-2 py-1 text-center font-semibold" style={{ color: f.ok ? "var(--ok)" : "var(--crit)" }} aria-label={f.ok ? "matches" : "does not match"}>
                     {f.ok ? "✓" : "✗"}
                   </td>
                 </tr>
@@ -87,14 +87,14 @@ export function Bench() {
               .slice(0, 14)
               .map(([id, s]) => (
                 <li key={id} className="flex gap-2">
-                  <span className="w-16 shrink-0 font-type text-faint">{id}</span>
+                  <span className="w-16 shrink-0 font-mono text-faint">{id}</span>
                   <span className="flex-1 truncate">{RULE[id]?.title}</span>
-                  <span className="font-type">{s.tp}</span>
+                  <span className="font-mono">{s.tp}</span>
                 </li>
               ))}
           </ul>
           <p className="mt-4 text-xs text-faint">
-            Generated {new Date(r.generatedAt).toLocaleString()}. Reproduce with <code className="font-type">npm run evaluate</code>; the same files run as unit tests on every push.
+            Generated {new Date(r.generatedAt).toLocaleString()}. Reproduce with <code className="font-mono">npm run evaluate</code>; the same files run as unit tests on every push.
           </p>
         </section>
       </div>

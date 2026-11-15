@@ -55,7 +55,7 @@ function Step({ title, children, code }: { title: string; children: ReactNode; c
         <h2 className="text-lg font-bold">{title}</h2>
         <div className="mt-1 text-[14.5px] leading-relaxed text-muted">{children}</div>
       </div>
-      <pre className="printout typed overflow-x-auto py-3 text-[13px] [&]:px-12">{code}</pre>
+      <pre className="code overflow-x-auto rounded-[10px] border border-line bg-panel px-4 py-3 text-[12.5px]">{code}</pre>
     </section>
   );
 }
@@ -63,20 +63,20 @@ function Step({ title, children, code }: { title: string; children: ReactNode; c
 export function UseIt() {
   return (
     <div className="max-w-6xl">
-      <h1 className="text-[2.2rem] font-bold leading-[1.05] tracking-[-0.02em]">Put it where configs change</h1>
-      <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks on the desk are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
+      <h1 className="text-[1.7rem] font-semibold leading-tight tracking-[-0.02em]">Put it where configs change</h1>
+      <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks in this editor are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
       <div className="mt-8 space-y-10">
         <Step title="On every pull request" code={ACTION}>
-          The GitHub Action checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-type">fail-on</code> to adjust.
+          The GitHub Action checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">fail-on</code> to adjust.
         </Step>
         <Step title="From the command line" code={CLI}>
-          One file, no install: <code className="font-type">redline.cjs</code> from the repository's <code className="font-type">action</code> folder runs on Node 20 or newer. <code className="font-type">--diff</code> prints a patch you can read before applying with <code className="font-type">git apply</code>.
+          One file, no install: <code className="font-mono">redline.cjs</code> from the repository's <code className="font-mono">action</code> folder runs on Node 20 or newer. <code className="font-mono">--diff</code> prints a patch you can read before applying with <code className="font-mono">git apply</code>.
         </Step>
         <Step title="Before each commit" code={HOOK}>
           A pre-commit hook checks only the files you are committing, so it takes milliseconds.
         </Step>
         <Step title="As a service" code={API}>
-          Run it with Docker (<code className="font-type">docker run -p 8080:8080 redline</code>) to get this site and the API. It keeps nothing: each request is checked and forgotten.
+          Run it with Docker (<code className="font-mono">docker run -p 8080:8080 redline</code>) to get this site and the API. It keeps nothing: each request is checked and forgotten.
         </Step>
       </div>
     </div>

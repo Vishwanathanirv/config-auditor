@@ -1,47 +1,50 @@
 import { expect, test } from "@playwright/test";
 
-test("the example Dockerfile is marked up and the corrected copy can be downloaded", async ({ page }) => {
+const editor = (page: import("@playwright/test").Page, name = "Dockerfile") => page.getByLabel(`Contents of ${name}`);
+
+test("the example Dockerfile opens with squiggles, and a lightbulb fix can be undone", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Dockerfile" })).toBeVisible();
-  await expect(page.getByLabel(/Grade F/)).toBeVisible();
+  await expect(page.getByRole("tab", { name: /Dockerfile/, selected: true })).toBeVisible();
+  await expect(page.getByText(/Grade F/)).toBeVisible();
   await expect(page.getByText("Container runs as root").first()).toBeVisible();
 
-  await page.getByRole("tab", { name: "Corrected copy" }).click();
-  await expect(page.getByText('CMD ["npm", "start"]')).toBeVisible();
-  await expect(page.getByText("USER node")).toBeVisible();
-  const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download the fixed file" }).click();
-  expect((await download).suggestedFilename()).toBe("Dockerfile");
+  await page.getByRole("button", { name: "Quick fixes for line 19" }).click();
+  await page.getByRole("menuitem", { name: /Fix: CMD in shell form/ }).click();
+  await expect(editor(page)).toHaveValue(/CMD \["npm", "start"\]/);
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(editor(page)).toHaveValue(/CMD npm start/);
 });
 
-test("unticking a fix leaves that line alone in the corrected copy", async ({ page }) => {
+test("the fix preview applies only the ticked fixes and downloads the file", async ({ page }) => {
   await page.goto("/?file=sample:Dockerfile");
-  await page.getByText("CMD in shell form").first().click();
-  await page.locator("label", { hasText: "fix this" }).filter({ visible: true }).last().click();
-  await expect(page.getByText("leave it").filter({ visible: true })).toHaveCount(1);
-  await page.getByRole("tab", { name: "Corrected copy" }).click();
-  await expect(page.getByText("CMD npm start")).toBeVisible();
-  await expect(page.getByText('CMD ["npm", "start"]')).toHaveCount(0);
+  await page.getByRole("tab", { name: "Fix preview" }).click();
+  await page.getByLabel(/CMD in shell form/).uncheck();
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download fixed file" }).click();
+  expect((await download).suggestedFilename()).toBe("Dockerfile");
+  await page.getByRole("button", { name: "Apply to the file" }).click();
+  await expect(editor(page)).toHaveValue(/USER node/);
+  await expect(editor(page)).toHaveValue(/CMD npm start/);
 });
 
-test("a pasted file is inspected in the browser and kept after a reload", async ({ page }) => {
+test("a new file is checked as you type and kept after a reload", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Add a file" }).click();
-  await page.getByLabel("File name").fill("sshd_config");
-  await page.getByLabel("Contents").fill("PermitRootLogin yes\nPasswordAuthentication yes\n");
-  await page.getByRole("button", { name: "Inspect it" }).click();
+  await page.getByRole("button", { name: "New file" }).click();
+  await page.getByLabel("New file name").fill("sshd_config");
+  await page.keyboard.press("Enter");
+  await editor(page, "sshd_config").fill("PermitRootLogin yes\nPasswordAuthentication yes\n");
   await expect(page.getByText("Root can log in with a password").first()).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("heading", { name: "sshd_config" })).toBeVisible();
-  await page.getByRole("button", { name: "Remove from the desk" }).click();
-  await expect(page.getByText("Paste a file or drop one")).toBeVisible();
+  await expect(editor(page, "sshd_config")).toHaveValue(/PermitRootLogin yes/);
+  await page.getByRole("button", { name: "Delete sshd_config" }).click();
+  await expect(page.getByLabel("Contents of sshd_config")).toHaveCount(0);
 });
 
-test("the rulebook and the test bench load", async ({ page }) => {
+test("the rulebook and the test bench open as tabs", async ({ page }) => {
   await page.goto("/rules");
   await page.getByPlaceholder("Search the rules").fill("off-by-slash");
   await expect(page.getByText("alias path traversal (off-by-slash)")).toBeVisible();
-  await page.goto("/bench");
+  await page.getByRole("button", { name: "Test bench" }).click();
   await expect(page.getByText("false alarms on hardened configs")).toBeVisible();
   await expect(page.getByText("Mozilla modern OpenSSH")).toBeVisible();
 });

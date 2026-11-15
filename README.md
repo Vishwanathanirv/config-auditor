@@ -1,12 +1,12 @@
-# Redline · A config inspector with a red pen
+# Redline · A code editor that finds security mistakes in config files
 
 > Built by [Vishwanathan R](https://vishwanathan.dev) · [Portfolio](https://vishwanathan.dev) · [Resume](https://vishwanathan.dev/resume.pdf)
 
-Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) and marks them up like an inspector with a red pen. Each problem gets a note in plain English: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
+Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) in an editor that works like VS Code. Mistakes get a wavy red underline as you type, with a short note at the end of the line, and each problem has a plain-English explanation: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, and a lightbulb next to the line applies it, so you get a corrected file or a patch you can apply with `git apply`.
 
 It runs in the browser (nothing is uploaded), on the command line, as a GitHub Action that puts findings on pull requests, and as an API.
 
-![Marked-up nginx config](docs/screenshots/desk.png)
+![The editor with squiggles on a Dockerfile](docs/screenshots/editor.png)
 
 ## Why
 
@@ -20,13 +20,21 @@ Some of the checks catch traps that experienced people still fall into:
 - **nginx `add_header` inheritance:** one `add_header` in a location silently drops every security header set on the server.
 - **Docker bypasses ufw:** `"5432:5432"` in compose opens the database to the internet even with a firewall on. Redline rewrites it to `127.0.0.1:5432:5432`.
 
-![A note opened: the first value wins](docs/screenshots/note-open.png)
+![Quick fixes from the lightbulb](docs/screenshots/quick-fix.png)
 
-## The corrected copy
+## Fixing
 
-Tick the fixes you want, then switch to the corrected copy: blue lines are written in, struck lines are taken out. Download the fixed file or copy it as a patch. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
+Three ways, all with undo:
 
-![Corrected Dockerfile](docs/screenshots/corrected.png)
+- Click the **lightbulb** next to a line to fix that problem (Ctrl . fixes everything that can be fixed).
+- Open **Fix preview** in the bottom panel, untick the fixes you don't want, and see the change as a diff: green lines are written in, struck lines are taken out. Apply it, download the fixed file, or copy it as a patch.
+- Or just edit the file: it is checked again on every key press.
+
+The Problems panel lists everything in the file or the whole project; click one to jump to its line and read why it matters. Your files and edits stay in your browser. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
+
+![Fix preview](docs/screenshots/fix-preview.png)
+
+![Dark theme](docs/screenshots/dark.png)
 
 ## Results
 
