@@ -812,8 +812,8 @@ export function Workbench() {
             <span className="flex-1" />
           </>
         )}
-        <a href="https://vishwanathan.dev" className="hover:text-ink">
-          by Vishwanathan R
+        <a href="https://github.com/Vishwanathanirv/config-auditor" className="hover:text-ink">
+          Source
         </a>
       </footer>
 

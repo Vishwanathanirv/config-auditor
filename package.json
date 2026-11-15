@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "description": "Redline: marks up Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd configs like an inspector with a red pen, and writes the fixes.",
-  "author": "Vishwanathan R <mail@vishwanathan.dev> (https://vishwanathan.dev)",
   "license": "MIT",
   "type": "module",
   "workspaces": [

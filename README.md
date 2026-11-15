@@ -1,6 +1,5 @@
 # Redline · A code editor that finds security mistakes in config files
 
-> Built by [Vishwanathan R](https://vishwanathan.dev) · [Portfolio](https://vishwanathan.dev) · [Resume](https://vishwanathan.dev/resume.pdf)
 
 Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) in an editor that works like VS Code. Mistakes get a wavy red underline as you type, with a short note at the end of the line, and each problem has a plain-English explanation: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, and a lightbulb next to the line applies it, so you get a corrected file or a patch you can apply with `git apply`.
 
