@@ -2,7 +2,7 @@
 
 > Built by [Vishwanathan R](https://vishwanathan.dev) · [Portfolio](https://vishwanathan.dev) · [Resume](https://vishwanathan.dev/resume.pdf)
 
-Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) and marks them up like an inspector with a red pen. Each problem gets a note in plain English: what is wrong on that line, why it matters, and how to fix it. For 34 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
+Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) and marks them up like an inspector with a red pen. Each problem gets a note in plain English: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
 
 It runs in the browser (nothing is uploaded), on the command line, as a GitHub Action that puts findings on pull requests, and as an API.
 
