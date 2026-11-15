@@ -1,0 +1,40 @@
+{
+  "name": "redline",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Redline: marks up Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd configs like an inspector with a red pen, and writes the fixes.",
+  "author": "Vishwanathan R <mail@vishwanathan.dev> (https://vishwanathan.dev)",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm:dev -w apps/api\" \"npm:dev -w apps/web\"",
+    "build": "npm run build -w apps/web && npm run build -w apps/api && npm run build -w packages/cli",
+    "start": "node apps/api/dist/server.js",
+    "audit": "tsx packages/cli/src/cli.ts",
+    "evaluate": "tsx scripts/evaluate.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/core && tsc -p packages/cli && tsc -p apps/api && tsc -p apps/web",
+    "lint": "eslint .",
+    "build:demo": "npm run build:demo -w apps/web",
+    "test:e2e": "npm run build:demo && playwright test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.20.5",
+    "concurrently": "^9.2.5",
+    "esbuild": "^0.25.12",
+    "eslint": "^9.39.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^3.2.7"
+  }
+}

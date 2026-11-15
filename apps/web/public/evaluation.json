@@ -1,0 +1,502 @@
+{
+ "generatedAt": "2026-11-15T06:32:46.846Z",
+ "rules": 60,
+ "autofixRules": 37,
+ "fixtures": 25,
+ "labelled": 72,
+ "found": {
+  "tp": 72,
+  "fp": 0,
+  "fn": 0
+ },
+ "clean": {
+  "files": 6,
+  "alarms": 0
+ },
+ "fixes": {
+  "fixable": 72,
+  "removed": 72,
+  "inputs": 30,
+  "validAfter": 30
+ },
+ "perFileMs": 0.33,
+ "perRule": {
+  "DF001": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF002": {
+   "tp": 3,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF003": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF004": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF005": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF006": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF007": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF008": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF009": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF010": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF011": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF012": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF013": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DF014": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC001": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC002": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC003": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC004": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC005": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC006": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC007": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "DC008": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S001": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S002": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S003": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S004": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S005": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S006": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S007": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S008": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S009": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S010": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S011": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S012": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S013": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S014": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "K8S015": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG001": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG002": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG003": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG004": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG005": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG006": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG007": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG008": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG009": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG010": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "NG011": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH001": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH002": {
+   "tp": 3,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH003": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH004": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH005": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH006": {
+   "tp": 2,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH007": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH008": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH009": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH010": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH011": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  },
+  "SSH012": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0
+  }
+ },
+ "files": [
+  {
+   "name": "Hardened multi-stage Node image",
+   "kind": "Dockerfile",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Clean Python image with pinned digest",
+   "kind": "Dockerfile",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Untagged base, root user, shell CMD",
+   "kind": "Dockerfile",
+   "expected": 3,
+   "found": 3,
+   "ok": true
+  },
+  {
+   "name": "Secrets in ENV and ARG",
+   "kind": "Dockerfile",
+   "expected": 2,
+   "found": 2,
+   "ok": true
+  },
+  {
+   "name": "Remote ADD, piped installer, insecure curl",
+   "kind": "Dockerfile",
+   "expected": 3,
+   "found": 3,
+   "ok": true
+  },
+  {
+   "name": "sudo, chmod 777, SSH and a private key",
+   "kind": "Dockerfile",
+   "expected": 5,
+   "found": 5,
+   "ok": true
+  },
+  {
+   "name": "Deprecated MAINTAINER, loose installs, final stage root",
+   "kind": "Dockerfile",
+   "expected": 4,
+   "found": 4,
+   "ok": true
+  },
+  {
+   "name": "Last USER switches back to root",
+   "kind": "Dockerfile",
+   "expected": 1,
+   "found": 1,
+   "ok": true
+  },
+  {
+   "name": "Locked-down compose stack",
+   "kind": "Docker Compose",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Every classic compose mistake",
+   "kind": "Docker Compose",
+   "expected": 9,
+   "found": 9,
+   "ok": true
+  },
+  {
+   "name": "Restricted-profile Deployment",
+   "kind": "Kubernetes",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Privileged DaemonSet with host access",
+   "kind": "Kubernetes",
+   "expected": 12,
+   "found": 12,
+   "ok": true
+  },
+  {
+   "name": "CronJob with a literal token and root user",
+   "kind": "Kubernetes",
+   "expected": 3,
+   "found": 3,
+   "ok": true
+  },
+  {
+   "name": "Wildcard RBAC, cluster-admin and an exposed database",
+   "kind": "Kubernetes",
+   "expected": 3,
+   "found": 3,
+   "ok": true
+  },
+  {
+   "name": "Mozilla-intermediate nginx",
+   "kind": "nginx",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Old TLS, weak ciphers, version on show",
+   "kind": "nginx",
+   "expected": 4,
+   "found": 4,
+   "ok": true
+  },
+  {
+   "name": "Off-by-slash alias, autoindex and $uri redirect",
+   "kind": "nginx",
+   "expected": 5,
+   "found": 5,
+   "ok": true
+  },
+  {
+   "name": "Location loses the server's headers; dotfiles served",
+   "kind": "nginx",
+   "expected": 2,
+   "found": 2,
+   "ok": true
+  },
+  {
+   "name": "Port 80 serves the site next to HTTPS",
+   "kind": "nginx",
+   "expected": 1,
+   "found": 1,
+   "ok": true
+  },
+  {
+   "name": "Mozilla modern OpenSSH",
+   "kind": "SSH server",
+   "expected": 0,
+   "found": 0,
+   "ok": true
+  },
+  {
+   "name": "Default-ish config with nothing set",
+   "kind": "SSH server",
+   "expected": 1,
+   "found": 1,
+   "ok": true
+  },
+  {
+   "name": "Password off, but PAM still asks",
+   "kind": "SSH server",
+   "expected": 1,
+   "found": 1,
+   "ok": true
+  },
+  {
+   "name": "Wide open server",
+   "kind": "SSH server",
+   "expected": 10,
+   "found": 10,
+   "ok": true
+  },
+  {
+   "name": "Hardening appended at the bottom is ignored",
+   "kind": "SSH server",
+   "expected": 2,
+   "found": 2,
+   "ok": true
+  },
+  {
+   "name": "Password login allowed for one group only",
+   "kind": "SSH server",
+   "expected": 1,
+   "found": 1,
+   "ok": true
+  }
+ ]
+}

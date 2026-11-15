@@ -1,0 +1,1 @@
+{ "name": "@redline/core", "version": "1.0.0", "private": true, "type": "module", "main": "src/index.ts", "types": "src/index.ts", "dependencies": { "yaml": "^2.9.1" } }

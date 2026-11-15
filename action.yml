@@ -1,0 +1,35 @@
+name: Redline config audit
+description: Checks Dockerfiles, Docker Compose, Kubernetes, nginx and sshd configs for security mistakes and writes SARIF for GitHub code scanning.
+author: Vishwanathan R
+branding:
+  icon: check-square
+  color: red
+inputs:
+  path:
+    description: Files or folders to check, separated by spaces.
+    default: "."
+  fail-on:
+    description: Fail the step on findings this severe or worse (low, medium, high, critical, never).
+    default: high
+  sarif:
+    description: Where to write the SARIF report.
+    default: redline.sarif
+runs:
+  using: composite
+  steps:
+    - name: Write the SARIF report
+      shell: bash
+      env:
+        RL_PATH: ${{ inputs.path }}
+        RL_SARIF: ${{ inputs.sarif }}
+      run: |
+        read -r -a paths <<< "$RL_PATH"
+        node "$GITHUB_ACTION_PATH/action/redline.cjs" "${paths[@]}" --format sarif --output "$RL_SARIF" --fail-on never
+    - name: Check
+      shell: bash
+      env:
+        RL_PATH: ${{ inputs.path }}
+        RL_FAIL: ${{ inputs.fail-on }}
+      run: |
+        read -r -a paths <<< "$RL_PATH"
+        node "$GITHUB_ACTION_PATH/action/redline.cjs" "${paths[@]}" --fail-on "$RL_FAIL"

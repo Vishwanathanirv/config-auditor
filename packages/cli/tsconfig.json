@@ -1,0 +1,1 @@
+{ "extends": "../../tsconfig.base.json", "compilerOptions": { "paths": { "@redline/core": ["../core/src/index.ts"] } }, "include": ["src"] }
