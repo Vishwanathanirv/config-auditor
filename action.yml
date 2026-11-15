@@ -1,6 +1,5 @@
 name: Redline config audit
 description: Checks Dockerfiles, Docker Compose, Kubernetes, nginx and sshd configs for security mistakes and writes SARIF for GitHub code scanning.
-author: Vishwanathan R
 branding:
   icon: check-square
   color: red
