@@ -3,6 +3,8 @@
 
 Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) in an editor that works like VS Code. Mistakes get a wavy red underline as you type, with a short note at the end of the line, and each problem has a plain-English explanation: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, and a lightbulb next to the line applies it, so you get a corrected file or a patch you can apply with `git apply`.
 
+**Live demo: [redline-config-auditor.vercel.app](https://redline-config-auditor.vercel.app)**
+
 It runs in the browser (nothing is uploaded), on the command line, as a GitHub Action that puts findings on pull requests, and as an API.
 
 ![The editor with squiggles on a Dockerfile](docs/screenshots/editor.png)
@@ -51,6 +53,28 @@ From `npm run evaluate` (the same files run as unit tests on every push):
 
 ![Test bench](docs/screenshots/bench.png)
 
+### On other projects' test files
+
+The files above were written alongside the rules. `npm run bench` also runs Redline over
+190 labelled test cases written by other projects: [KICS](https://github.com/Checkmarx/kics)
+(Apache-2.0) for Dockerfile, Compose and Kubernetes, and [gixy-ng](https://pypi.org/project/gixy-ng/)
+(MPL-2.0) for nginx. Only checks that mean the same thing as a Redline rule are counted. The rules
+were tuned on a fixed 60% of the files; this table is the other 40%, which were not used for tuning:
+
+| File type | Positive files | Negative files | Precision | Recall | False positives |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Dockerfile | 6 | 5 | 100.0% | 83.3% | 0 |
+| Docker Compose | 6 | 3 | 100.0% | 100.0% | 0 |
+| Kubernetes | 14 | 11 | 100.0% | 100.0% | 0 |
+| nginx | 18 | 16 | 88.2% | 83.3% | 2 |
+| **All** | 44 | 35 | **95.2%** | **90.9%** | 2 |
+
+Before tuning, the same held-out files scored 93.1% precision and 61.4% recall (nginx recall was
+22.2%: Redline ignored config fragments without a `server` block). No public labelled suite for
+`sshd_config` was found, so sshd isn't in this benchmark. Sources, scoring, the split and the
+labels Redline deliberately disagrees with are in [bench/README.md](bench/README.md); full
+numbers in [bench/RESULTS.md](bench/RESULTS.md).
+
 ## How it works
 
 ```mermaid
@@ -78,9 +102,10 @@ Requires Node 22.13+.
 ```bash
 npm install
 npm run dev          # web on :5173, API on :8080
-npm test             # 70 unit and API tests
+npm test             # 94 unit and API tests
 npm run test:e2e     # browser tests (Playwright)
 npm run evaluate     # rebuild the test bench report
+npm run bench        # precision and recall on KICS and gixy test files
 ```
 
 ### Command line
