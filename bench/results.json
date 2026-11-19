@@ -16,15 +16,15 @@
     "errors": 0
    },
    "kubernetes": {
-    "tp": 12,
-    "fn": 2,
+    "tp": 14,
+    "fn": 0,
     "fp": 0,
     "tn": 11,
     "errors": 0
    },
    "nginx": {
-    "tp": 4,
-    "fn": 14,
+    "tp": 15,
+    "fn": 3,
     "fp": 2,
     "tn": 14,
     "errors": 0
@@ -38,8 +38,8 @@
    }
   },
   "all": {
-   "tp": 27,
-   "fn": 17,
+   "tp": 40,
+   "fn": 4,
    "fp": 2,
    "tn": 33,
    "errors": 0
@@ -62,17 +62,17 @@
     "errors": 0
    },
    "kubernetes": {
-    "tp": 26,
-    "fn": 3,
-    "fp": 3,
-    "tn": 21,
+    "tp": 29,
+    "fn": 0,
+    "fp": 2,
+    "tn": 22,
     "errors": 0
    },
    "nginx": {
-    "tp": 12,
-    "fn": 36,
-    "fp": 5,
-    "tn": 31,
+    "tp": 39,
+    "fn": 9,
+    "fp": 2,
+    "tn": 34,
     "errors": 0
    },
    "sshd": {
@@ -84,10 +84,10 @@
    }
   },
   "all": {
-   "tp": 63,
-   "fn": 40,
-   "fp": 12,
-   "tn": 75,
+   "tp": 93,
+   "fn": 10,
+   "fp": 8,
+   "tn": 79,
    "errors": 0
   }
  },
@@ -869,8 +869,8 @@
    "rules": [
     "K8S007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "kics/kubernetes/shared-host-pid-namespace/negative-1.yaml",
@@ -909,8 +909,8 @@
    "rules": [
     "K8S007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "kics/kubernetes/shared-host-ipc-namespace/negative-1.yaml",
@@ -949,8 +949,8 @@
    "rules": [
     "K8S007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "kics/kubernetes/shared-host-network-namespace/negative-1.yaml",
@@ -1109,8 +1109,8 @@
    "rules": [
     "K8S012"
    ],
-   "fired": true,
-   "ok": false
+   "fired": false,
+   "ok": true
   },
   {
    "file": "kics/kubernetes/rbac-wildcard-in-rule/positive-1.yaml",
@@ -1169,8 +1169,8 @@
    "rules": [
     "NG001"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/weak_ssl_tls/prefer_on.conf",
@@ -1235,8 +1235,8 @@
     "NG002",
     "NG003"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/weak_ssl_tls/weak_protocols.conf",
@@ -1246,8 +1246,8 @@
     "NG002",
     "NG003"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/hsts_header/missing_hsts.conf",
@@ -1266,8 +1266,8 @@
    "rules": [
     "NG005"
    ],
-   "fired": true,
-   "ok": false
+   "fired": false,
+   "ok": true
   },
   {
    "file": "gixy/hsts_header/security_headers_http_fp.conf",
@@ -1306,8 +1306,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/nested_fp.conf",
@@ -1346,8 +1346,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/regex_2.conf",
@@ -1356,8 +1356,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/regex_2_fp.conf",
@@ -1376,8 +1376,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/regex_3_fp.conf",
@@ -1416,8 +1416,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/regex_6.conf",
@@ -1426,8 +1426,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/regex_fp.conf",
@@ -1446,8 +1446,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/simple_fp.conf",
@@ -1466,8 +1466,8 @@
    "rules": [
     "NG007"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/alias_traversal/slashed_alias_fp.conf",
@@ -1556,8 +1556,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": true,
-   "ok": false
+   "fired": false,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/header_inherit_merge_fp.conf",
@@ -1566,8 +1566,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": true,
-   "ok": false
+   "fired": false,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/header_inherit_nearest_on.conf",
@@ -1606,8 +1606,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/location_replaces.conf",
@@ -1616,8 +1616,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/nested_block.conf",
@@ -1646,8 +1646,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/not_secure_outer.conf",
@@ -1656,8 +1656,8 @@
    "rules": [
     "NG008"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/add_header_redefinition/pragma_no_cache.conf",
@@ -1736,8 +1736,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/dont_report_not_resolved_var_fp.conf",
@@ -1806,8 +1806,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/mapped_value_3.conf",
@@ -1816,8 +1816,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/mapped_value_3_fp.conf",
@@ -1836,8 +1836,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/mapped_value_4_fp.conf",
@@ -1866,8 +1866,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_from_location_var.conf",
@@ -1876,8 +1876,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_from_location_var_var.conf",
@@ -1886,8 +1886,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_from_location_var_var_fp.conf",
@@ -1906,8 +1906,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_pass_cr_fp.conf",
@@ -1926,8 +1926,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_pass_lf.conf",
@@ -1936,8 +1936,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/proxy_set_header_ducument_uri.conf",
@@ -1946,8 +1946,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   },
   {
    "file": "gixy/http_splitting/return_403_fp.conf",
@@ -1996,8 +1996,8 @@
    "rules": [
     "NG011"
    ],
-   "fired": false,
-   "ok": false
+   "fired": true,
+   "ok": true
   }
  ]
 }

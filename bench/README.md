@@ -38,3 +38,23 @@ Each file goes to the development set (about 60%) or the test set by a SHA-256 h
 path, fixed once. Rules were changed using only the development set (`npm run bench -- --dev`
 lists its misses). The test-set numbers show whether those changes carry over to files that were
 not looked at while changing the rules.
+
+## Where Redline disagrees with the labels on purpose
+
+Some development-set "false positives" were looked at and left as they are, because the label
+describes a narrower check than Redline's and Redline's finding is correct. They still count
+against Redline in the numbers.
+
+- `missing-user-instruction/negative-1`: the final stage (`FROM scratch`) has no `USER`, so it
+  runs as root. KICS only checks that a `USER` appears somewhere in the file.
+- `add-instead-of-copy/negative-1`: `ADD https://…` downloads with no checksum. Redline
+  reports that; KICS treats a URL as a valid use of `ADD`.
+- `apt-get-install-lists-were-not-deleted/negative-1` and `-2`: `apt-get clean` empties
+  `/var/cache/apt/archives` but leaves `/var/lib/apt/lists`, which is what the check is about.
+- `workload-mounting-with-sensitive-os-directory/negative-1`, `docker-daemon-socket-…/negative-1`:
+  these mount `/opt`, `/tmp/…` and `/data` from the node. The Kubernetes "baseline" Pod Security
+  Standard forbids every `hostPath` volume, so Redline reports them (at high, not critical).
+
+Development-set misses that were left alone: gixy treats `.` in a regex capture as able to carry
+a line break and `ssl_prefer_server_ciphers on` as weak; Redline's rules don't, and `add_trailer`
+inheritance is out of scope.

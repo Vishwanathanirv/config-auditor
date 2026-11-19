@@ -10,9 +10,9 @@ labelled test suite for `sshd_config` was found, so sshd is not in this benchmar
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Dockerfile | 6 | 5 | 100.0% | 83.3% | 0 | 0 |
 | Docker Compose | 6 | 3 | 100.0% | 100.0% | 0 | 0 |
-| Kubernetes | 14 | 11 | 100.0% | 85.7% | 0 | 0 |
-| nginx | 18 | 16 | 66.7% | 22.2% | 2 | 0 |
-| **All** | 44 | 35 | 93.1% | 61.4% | 2 | 0 |
+| Kubernetes | 14 | 11 | 100.0% | 100.0% | 0 | 0 |
+| nginx | 18 | 16 | 88.2% | 83.3% | 2 | 0 |
+| **All** | 44 | 35 | 95.2% | 90.9% | 2 | 0 |
 
 ## All 190 files
 
@@ -20,30 +20,17 @@ labelled test suite for `sshd_config` was found, so sshd is not in this benchmar
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Dockerfile | 15 | 17 | 77.8% | 93.3% | 4 | 0 |
 | Docker Compose | 11 | 10 | 100.0% | 100.0% | 0 | 0 |
-| Kubernetes | 29 | 24 | 89.7% | 89.7% | 3 | 0 |
-| nginx | 48 | 36 | 70.6% | 25.0% | 5 | 0 |
-| **All** | 103 | 87 | 84.0% | 61.2% | 12 | 0 |
+| Kubernetes | 29 | 24 | 93.5% | 100.0% | 2 | 0 |
+| nginx | 48 | 36 | 95.1% | 81.3% | 2 | 0 |
+| **All** | 103 | 87 | 92.1% | 90.3% | 8 | 0 |
 
 Average time per file: 0.48 ms.
 
 ## Files Redline gets wrong in the held-out set
 
 - missed: `kics/dockerfile/image-version-not-explicit/positive-4.dockerfile` (DF001, KICS "Image Version Not Explicit")
-- missed: `kics/kubernetes/shared-host-pid-namespace/positive-2.yaml` (K8S007, KICS "Shared Host PID Namespace")
-- missed: `kics/kubernetes/shared-host-network-namespace/positive-2.yaml` (K8S007, KICS "Shared Host Network Namespace")
-- missed: `gixy/version_disclosure/server_tokens_on.conf` (NG001)
 - false positive: `gixy/hsts_header/security_headers_http_fp.conf` (NG005)
 - false positive: `gixy/hsts_header/security_headers_on_fp.conf` (NG005)
 - missed: `gixy/alias_traversal/not_slashed_alias.conf` (NG007)
-- missed: `gixy/alias_traversal/regex_2.conf` (NG007)
 - missed: `gixy/alias_traversal/regex_4.conf` (NG007)
-- missed: `gixy/alias_traversal/regex_6.conf` (NG007)
-- missed: `gixy/alias_traversal/slashed_alias.conf` (NG007)
-- missed: `gixy/add_header_redefinition/if_replaces.conf` (NG008)
-- missed: `gixy/add_header_redefinition/not_secure_dropped.conf` (NG008)
-- missed: `gixy/http_splitting/add_header_uri.conf` (NG011)
-- missed: `gixy/http_splitting/mapped_value_with_set.conf` (NG011)
-- missed: `gixy/http_splitting/proxy_from_location_var.conf` (NG011)
-- missed: `gixy/http_splitting/proxy_pass_ducument_uri.conf` (NG011)
-- missed: `gixy/http_splitting/proxy_pass_lf.conf` (NG011)
 - missed: `gixy/http_splitting/rewrite_uri.conf` (NG011)

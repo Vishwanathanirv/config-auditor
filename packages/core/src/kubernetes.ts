@@ -34,14 +34,24 @@ export function checkKubernetes(y: Yaml): Finding[] {
   const out: Finding[] = [];
   const add = (rule: string, line: number, message: string, edits?: Edit[], severity?: Finding["severity"]) => out.push({ rule, severity: severity ?? KUBERNETES_RULES.find((r) => r.id === rule)!.severity, line, message, edits });
 
+  // Service accounts in the same file that already turn token mounting off.
+  const quietAccounts = new Set<string>();
+  for (const doc of y.docs) {
+    const r = doc.contents;
+    if (isMap(r) && scalar(get(r, "kind")) === "ServiceAccount" && scalar(get(r, "automountServiceAccountToken")) === false) quietAccounts.add(String(scalar(get(r, "metadata", "name"))));
+  }
+
   y.docs.forEach((doc, di) => {
     const root = doc.contents;
     if (!isMap(root)) return;
     const kind = String(scalar(get(root, "kind")) ?? "");
     const name = String(scalar(get(root, "metadata", "name")) ?? kind);
 
-    if (WORKLOADS.has(kind)) {
-      const podPath = kind === "Pod" ? ["spec"] : kind === "CronJob" ? ["spec", "jobTemplate", "spec", "template", "spec"] : ["spec", "template", "spec"];
+    // Built-in workloads, plus custom resources that embed a pod template the usual way
+    // (Knative, Argo Rollouts, OpenKruise and others use spec.template.spec).
+    const podPath = kind === "Pod" ? ["spec"] : kind === "CronJob" ? ["spec", "jobTemplate", "spec", "template", "spec"] : ["spec", "template", "spec"];
+    const isWorkload = WORKLOADS.has(kind) || (kind !== "" && isSeq(get(root, "spec", "template", "spec", "containers")));
+    if (isWorkload) {
       const pod = get(root, ...podPath);
       if (!isMap(pod)) return;
       const podSc = get(pod, "securityContext");
@@ -61,7 +71,8 @@ export function checkKubernetes(y: Yaml): Finding[] {
       }
 
       const sa = pairOf(pod, "automountServiceAccountToken");
-      if (!sa || truthy(sa.value)) {
+      const account = String(scalar(get(pod, "serviceAccountName")) ?? scalar(get(pod, "serviceAccount")) ?? "");
+      if (sa ? truthy(sa.value) : !quietAccounts.has(account)) {
         const edits = sa ? [y.setValue(sa, "false")] : pod.flow ? [] : [{ start: y.lastLine(pod) + 1, end: y.lastLine(pod) + 1, lines: [`${y.indent(pod)}automountServiceAccountToken: false`], merge: { key: `${di}.pod.sa`, header: [] } }];
         add("K8S012", sa ? y.line(sa) : y.line(pairOf(root, "kind")), `\`${name}\` mounts an API token into its pods.`, edits.filter(Boolean) as Edit[]);
       }

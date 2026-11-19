@@ -122,7 +122,72 @@ const openLine = (block: Directive, lines: string[]) => {
   while (l <= lines.length && !lines[l - 1].includes("{")) l++;
   return l;
 };
-const headers = (list: Directive[]) => list.filter((d) => d.name === "add_header");
+const headers = (list: Directive[]) => list.filter((d) => d.name === "add_header" || d.name === "more_set_headers");
+/** The header name a directive sets: `add_header Name value` or `more_set_headers "Name: value"`. */
+const headerName = (h: Directive) => (h.name === "more_set_headers" ? (h.args.find((a) => !a.startsWith("-")) ?? "").split(":")[0].trim() : (h.args[0] ?? ""));
+
+/** Where a variable ends up in a header or in the request line sent upstream. */
+const SINKS: Record<string, (args: string[]) => string[]> = {
+  add_header: (a) => a.slice(1, 2),
+  more_set_headers: (a) => a.filter((x) => !x.startsWith("-")),
+  proxy_set_header: (a) => a.slice(1, 2),
+  proxy_pass: (a) => a.slice(0, 1),
+  // `return 301 URL` (or `return URL`) puts URL in the Location header; `return 200 text` is a body.
+  return: (a) => (a.length === 2 && /^30[1278]$/.test(a[0]) ? [a[1]] : a.length === 1 && !/^\d+$/.test(a[0]) ? [a[0]] : []),
+};
+
+/** Can this regex fragment match a line break? (`.` can't; `\s`, `\W`, `\D` and most negated classes can.) */
+const matchesNewline = (re: string) => /\\[sWD]/.test(re) || /\[\^(?![^\]]*(\\n|\\s))[^\]]*\]/.test(re);
+
+const isGroup = (re: string, i: number) => re[i] === "(" && (re[i + 1] !== "?" || re[i + 2] === "<" || re[i + 2] === "P");
+function groupBody(re: string, open: number): string {
+  let depth = 0;
+  for (let j = open; j < re.length; j++) {
+    if (re[j] === "\\") j++;
+    else if (re[j] === "(") depth++;
+    else if (re[j] === ")" && --depth === 0) return re.slice(open + 1, j).replace(/^\?P?<\w+>/, "");
+  }
+  return re.slice(open + 1);
+}
+/** Capture groups of a regex in order: number, name and body. */
+function groups(re: string): { n: string; name?: string; body: string; at: number }[] {
+  const out: { n: string; name?: string; body: string; at: number }[] = [];
+  for (let i = 0; i < re.length; i++) {
+    if (re[i] === "\\") i++;
+    else if (re[i] === "[") {
+      while (i < re.length && re[i] !== "]") i += re[i] === "\\" ? 2 : 1;
+    } else if (isGroup(re, i)) out.push({ n: String(out.length + 1), name: re.slice(i).match(/^\(\?P?<(\w+)>/)?.[1], body: groupBody(re, i), at: i });
+  }
+  return out;
+}
+
+/** Capture groups of a regex, numbered and named, mapped to whether they can hold a line break. */
+export function regexGroups(re: string): Map<string, boolean> {
+  const out = new Map<string, boolean>();
+  for (const g of groups(re)) {
+    out.set(g.n, matchesNewline(g.body));
+    if (g.name) out.set(g.name, matchesNewline(g.body));
+  }
+  return out;
+}
+
+/**
+ * `location ~ /images(.*) { alias /data/$1; }`: the capture starts right after "images", not after
+ * a slash, so `/images../secret` makes it `../secret`. nginx resolves `..` between slashes before
+ * matching, so a capture that starts after a `/`, or that can't contain a dot, is safe.
+ * Returns the risky capture variable, if any.
+ */
+export function unsafeAliasCapture(re: string, alias: string): string | undefined {
+  const used = [...alias.matchAll(/\$\{?(\w+)\}?/g)].map((m) => m[1]);
+  for (const g of groups(re)) {
+    const v = used.find((u) => u === g.n || u === g.name);
+    if (!v) continue;
+    const afterSlash = re.slice(0, g.at).replace(/\^$/, "").endsWith("/") || g.body.startsWith("/");
+    const noDot = /^\[\^[^\]]*\\?\.[^\]]*\][*+?]?$/.test(g.body) || /^[\w|-]*$/.test(g.body);
+    if (!afterSlash && !noDot) return `$${v}`;
+  }
+  return undefined;
+}
 
 export function checkNginx(text: string): { findings: Finding[]; errors: string[] } {
   const { root, errors } = parseNginx(text);
@@ -133,19 +198,53 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
   const http = root.find((d) => d.name === "http");
   const servers: Directive[] = [];
   walk(root, (d) => isServer(d) && d.block && servers.push(d));
-  if (!servers.length && !http) return { findings: out, errors };
+  // A file with no `http` or `server` is a fragment meant to be included (conf.d snippets,
+  // `include`d location files). Its directives are still checked; checks about what a whole
+  // server is missing are not, since the including file may provide it.
+  const fragment = !servers.length && !http;
 
   // NG001
   const tokens: Directive[] = [];
   walk(root, (d) => d.name === "server_tokens" && tokens.push(d));
-  const offAtTop = tokens.some((t) => t.args[0] === "off" && (t.parent === http || t.parent === undefined));
   for (const t of tokens) if (t.args[0] === "on" || t.args[0] === "build") add("NG001", t.line, `\`server_tokens ${t.args[0]}\` shows the nginx version.`, [replaceLine(t.line, "server_tokens off;", lines)]);
-  if (!tokens.length || (!offAtTop && !tokens.some((t) => t.args[0] === "off"))) {
+  if (!fragment) {
     if (!tokens.length) {
       const host = http ?? servers[0];
       const l = openLine(host, lines);
       add("NG001", host.line, "`server_tokens` isn't set, so it defaults to on.", [insertAfter(l, [`${indentFor(lines, host)}server_tokens off;`])]);
     }
+  }
+
+  // NG011: which variables can carry a decoded line break. `$uri` and `$document_uri` are
+  // decoded; so are captures from a location, `if` or `map` regex that can match a line break;
+  // `set` and `map` pass that on to the variables they define.
+  const taintedVars = new Set<string>();
+  const capturesOf = (d: Directive | undefined): Map<string, boolean> => {
+    for (let b = d; b; b = b.parent) {
+      if (b.name === "location" && (b.args[0] === "~" || b.args[0] === "~*")) return regexGroups(b.args[1] ?? "");
+      if (b.name === "if" && b.args.length >= 3 && /^\(?\$(uri|document_uri)$/.test(b.args[0]) && /^!?~\*?$/.test(b.args[1])) return regexGroups(b.args[2].replace(/\)$/, ""));
+    }
+    return new Map();
+  };
+  const varsIn = (text: string) => [...text.matchAll(/\$\{?(\w+)\}?/g)].map((m) => m[1]);
+  const taintIn = (text: string, scope: Directive | undefined): string | undefined => {
+    const caps = capturesOf(scope);
+    const v = varsIn(text).find((v) => v === "uri" || v === "document_uri" || taintedVars.has(v) || caps.get(v));
+    return v && `$${v}`;
+  };
+  const tainted = (d: Directive, args: string[]) => args.map((a) => taintIn(a, d.parent)).find(Boolean);
+  for (let round = 0; round < 4; round++) {
+    walk(root, (d) => {
+      if (d.name === "set" && d.args[0]?.startsWith("$") && taintIn(d.args[1] ?? "", d.parent)) taintedVars.add(d.args[0].slice(1));
+      if (d.name === "map" && d.block && d.args[1]?.startsWith("$")) {
+        const fromUri = /^\$(uri|document_uri)$/.test(d.args[0] ?? "");
+        for (const e of d.block) {
+          if (!e.args.length) continue;
+          const groups = fromUri && e.name.startsWith("~") ? regexGroups(e.name.replace(/^~\*?/, "")) : new Map<string, boolean>();
+          if (varsIn(e.args[e.args.length - 1]).some((v) => v === "uri" || v === "document_uri" || taintedVars.has(v) || groups.get(v))) taintedVars.add(d.args[1].slice(1));
+        }
+      }
+    });
   }
 
   walk(root, (d) => {
@@ -162,22 +261,37 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
     if (d.name === "location" && d.block) {
       const path = d.args.length === 1 ? d.args[0] : d.args[0] === "=" || d.args[0] === "^~" ? d.args[1] : undefined;
       const alias = inner(d).find((c) => c.name === "alias");
-      if (path && !path.endsWith("/") && alias?.args[0]?.endsWith("/") && d.args[0] !== "=") {
+      const capture = alias && (d.args[0] === "~" || d.args[0] === "~*") ? unsafeAliasCapture(d.args[1] ?? "", alias.args[0] ?? "") : undefined;
+      if (capture) add("NG007", d.line, `\`alias ${alias!.args[0]}\` takes \`${capture}\` from a part of the URL that doesn't start after a \`/\`, so a request with \`..\` there reaches the folder above.`);
+      else if (path && !path.endsWith("/") && alias?.args[0]?.endsWith("/") && d.args[0] !== "=") {
         add("NG007", d.line, `\`location ${path}\` with \`alias ${alias.args[0]}\`: \`${path}../\` reaches the folder above.`, d.line === openLine(d, lines) ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(path, `${path}/`)] }] : undefined);
       }
     }
-    if ((d.name === "return" || d.name === "rewrite" || d.name === "add_header") && d.args.some((a) => /\$uri\b|\$document_uri\b/.test(a))) {
-      add("NG011", d.line, "Puts the decoded `$uri` into a response header.", d.line === d.endLine ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(/\$(document_)?uri\b/g, "$request_uri")] }] : undefined);
+    const sinkArgs = SINKS[d.name]?.(d.args);
+    const bad = sinkArgs && tainted(d, sinkArgs);
+    if (bad) {
+      const direct = /^\$(document_)?uri$/.test(bad);
+      const where = d.name.startsWith("proxy") ? "the request sent upstream" : "a response header";
+      add("NG011", d.line, `Puts \`${bad}\` into ${where}. It is decoded from the URL, so an encoded line break (\`%0d%0a\`) in a request can add headers of its own.`, direct && d.line === d.endLine ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(/\$(document_)?uri\b(\$is_args\$args|\?\$args)?/g, "$request_uri")] }] : undefined);
     }
   });
 
   // Headers that apply to a block, following nginx's all-or-nothing inheritance.
+  // `add_header_inherit merge` (nginx 1.29.3+) keeps the parent's headers and is itself inherited.
+  const inheritMode = (block: Directive | undefined): string => {
+    for (let b = block; b; b = b.parent) {
+      const m = inner(b).find((d) => d.name === "add_header_inherit");
+      if (m) return m.args[0] ?? "on";
+    }
+    return root.find((d) => d.name === "add_header_inherit")?.args[0] ?? "on";
+  };
   const effective = (block: Directive | undefined): Directive[] => {
-    if (!block) return [];
-    const own = headers(inner(block));
+    const own = headers(block ? inner(block) : root);
+    if (!block) return own;
+    if (own.length && inheritMode(block) === "merge") return [...own, ...effective(block.parent)];
     return own.length ? own : effective(block.parent);
   };
-  const hasHeader = (list: Directive[], name: string) => list.some((h) => h.args[0]?.toLowerCase() === name.toLowerCase());
+  const hasHeader = (list: Directive[], name: string) => list.some((h) => headerName(h).toLowerCase() === name.toLowerCase());
 
   for (const s of servers) {
     const kids = inner(s);
@@ -203,22 +317,22 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
       add("NG010", root.line, `Files under \`${root.args[0]}\` are served with nothing blocking \`/.git\` or \`/.env\`.`, [insertAfter(close - 1, ["", `${ind}location ~ /\\.(?!well-known) {`, `${ind}    deny all;`, `${ind}}`])]);
     }
 
-    // NG008: a location with its own add_header loses the server's.
-    walk(kids, (d) => {
-      if (d.name !== "location" || !d.block) return;
-      const own = headers(d.block);
-      const parentHeaders = effective(d.parent);
-      if (!own.length || !parentHeaders.length) return;
-      const lost = parentHeaders.filter((p) => !hasHeader(own, p.args[0]));
-      if (!lost.length) return;
-      const li = indentFor(lines, d);
-      add("NG008", d.line, `This location sets its own headers, so ${lost.map((h) => `\`${h.args[0]}\``).join(", ")} from the server no longer apply here.`, [
-        insertAfter(
-          openLine(d, lines),
-          lost.map((h) => `${li}${lines[h.line - 1].trim()}`),
-        ),
-      ]);
-    });
   }
+
+  // NG008: a location (or an `if` in one) with its own add_header loses the ones above it.
+  walk(root, (d) => {
+    if ((d.name !== "location" && d.name !== "if") || !d.block) return;
+    const own = headers(d.block);
+    if (!own.length || inheritMode(d) === "merge") return;
+    const lost = effective(d.parent).filter((p) => !hasHeader(own, headerName(p)));
+    if (!lost.length) return;
+    const li = indentFor(lines, d);
+    add("NG008", d.line, `This ${d.name === "if" ? "`if` block" : "location"} sets its own headers, so ${lost.map((h) => `\`${headerName(h)}\``).join(", ")} from above no longer apply here.`, [
+      insertAfter(
+        openLine(d, lines),
+        lost.map((h) => `${li}${lines[h.line - 1].trim()}`),
+      ),
+    ]);
+  });
   return { findings: out, errors };
 }
