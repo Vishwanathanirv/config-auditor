@@ -1,0 +1,1996 @@
+{
+ "kics": {
+  "ref": "v2.1.21",
+  "license": "Apache-2.0"
+ },
+ "gixy": {
+  "name": "gixy-ng",
+  "version": "0.2.63",
+  "sha256": "ccff12aa3fdda85e125d7540aa4b51219ed7ab7e59adbafafffb47d6e4b348a5",
+  "license": "MPL-2.0"
+ },
+ "cases": [
+  {
+   "source": "kics",
+   "query": "f45ea400-6bbe-4501-9fc7-1c3d75c32067",
+   "queryName": "Image Version Using 'latest'",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-using-latest/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    1
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "f45ea400-6bbe-4501-9fc7-1c3d75c32067",
+   "queryName": "Image Version Using 'latest'",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-using-latest/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    1
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/positive-2.dockerfile",
+   "expect": "positive",
+   "lines": [
+    7
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/positive-3.dockerfile",
+   "expect": "positive",
+   "lines": [
+    4,
+    7
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/positive-4.dockerfile",
+   "expect": "positive",
+   "lines": [
+    10,
+    7
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/negative-2.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/negative-3.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "9efb0b2d-89c9-41a3-91ca-dcc0aec911fd",
+   "queryName": "Image Version Not Explicit",
+   "platform": "dockerfile",
+   "rule": "DF001",
+   "file": "kics/dockerfile/image-version-not-explicit/negative-4.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "67fd0c4a-68cf-46d7-8c41-bc9fba7e40ae",
+   "queryName": "Last User Is 'root'",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/last-user-is-root/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    2
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "67fd0c4a-68cf-46d7-8c41-bc9fba7e40ae",
+   "queryName": "Last User Is 'root'",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/last-user-is-root/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "67fd0c4a-68cf-46d7-8c41-bc9fba7e40ae",
+   "queryName": "Last User Is 'root'",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/last-user-is-root/negative-2.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "fd54f200-402c-4333-a5a4-36ef6709af2f",
+   "queryName": "Missing User Instruction",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/missing-user-instruction/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    1
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "fd54f200-402c-4333-a5a4-36ef6709af2f",
+   "queryName": "Missing User Instruction",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/missing-user-instruction/positive-2.dockerfile",
+   "expect": "positive",
+   "lines": [
+    7
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "fd54f200-402c-4333-a5a4-36ef6709af2f",
+   "queryName": "Missing User Instruction",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/missing-user-instruction/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "fd54f200-402c-4333-a5a4-36ef6709af2f",
+   "queryName": "Missing User Instruction",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/missing-user-instruction/negative-2.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "fd54f200-402c-4333-a5a4-36ef6709af2f",
+   "queryName": "Missing User Instruction",
+   "platform": "dockerfile",
+   "rule": "DF002",
+   "file": "kics/dockerfile/missing-user-instruction/negative-3.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "9513a694-aa0d-41d8-be61-3271e056f36b",
+   "queryName": "Add Instead of Copy",
+   "platform": "dockerfile",
+   "rule": "DF004",
+   "file": "kics/dockerfile/add-instead-of-copy/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    8
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "9513a694-aa0d-41d8-be61-3271e056f36b",
+   "queryName": "Add Instead of Copy",
+   "platform": "dockerfile",
+   "rule": "DF004",
+   "file": "kics/dockerfile/add-instead-of-copy/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "df746b39-6564-4fed-bf85-e9c44382303c",
+   "queryName": "Apt Get Install Lists Were Not Deleted",
+   "platform": "dockerfile",
+   "rule": "DF006",
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    8,
+    2,
+    12,
+    5
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "df746b39-6564-4fed-bf85-e9c44382303c",
+   "queryName": "Apt Get Install Lists Were Not Deleted",
+   "platform": "dockerfile",
+   "rule": "DF006",
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/positive-2.dockerfile",
+   "expect": "positive",
+   "lines": [
+    2
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "df746b39-6564-4fed-bf85-e9c44382303c",
+   "queryName": "Apt Get Install Lists Were Not Deleted",
+   "platform": "dockerfile",
+   "rule": "DF006",
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "df746b39-6564-4fed-bf85-e9c44382303c",
+   "queryName": "Apt Get Install Lists Were Not Deleted",
+   "platform": "dockerfile",
+   "rule": "DF006",
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/negative-2.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "8ada6e80-0ade-439e-b176-0b28f6bce35a",
+   "queryName": "Run Using Sudo",
+   "platform": "dockerfile",
+   "rule": "DF007",
+   "file": "kics/dockerfile/run-using-sudo/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    3
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "8ada6e80-0ade-439e-b176-0b28f6bce35a",
+   "queryName": "Run Using Sudo",
+   "platform": "dockerfile",
+   "rule": "DF007",
+   "file": "kics/dockerfile/run-using-sudo/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "5907595b-5b6d-4142-b173-dbb0e73fbff8",
+   "queryName": "Exposing Port 22 (SSH)",
+   "platform": "dockerfile",
+   "rule": "DF009",
+   "file": "kics/dockerfile/exposing-port-22-ssh/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    3
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "5907595b-5b6d-4142-b173-dbb0e73fbff8",
+   "queryName": "Exposing Port 22 (SSH)",
+   "platform": "dockerfile",
+   "rule": "DF009",
+   "file": "kics/dockerfile/exposing-port-22-ssh/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "99614418-f82b-4852-a9ae-5051402b741c",
+   "queryName": "MAINTAINER Instruction Being Used",
+   "platform": "dockerfile",
+   "rule": "DF010",
+   "file": "kics/dockerfile/maintainer-instruction-being-used/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    4
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "99614418-f82b-4852-a9ae-5051402b741c",
+   "queryName": "MAINTAINER Instruction Being Used",
+   "platform": "dockerfile",
+   "rule": "DF010",
+   "file": "kics/dockerfile/maintainer-instruction-being-used/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "f2f903fb-b977-461e-98d7-b3e2185c6118",
+   "queryName": "Pip install Keeping Cached Packages",
+   "platform": "dockerfile",
+   "rule": "DF014",
+   "file": "kics/dockerfile/pip-install-keeping-cached-packages/positive-1.dockerfile",
+   "expect": "positive",
+   "lines": [
+    2,
+    8,
+    9,
+    10,
+    11
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "f2f903fb-b977-461e-98d7-b3e2185c6118",
+   "queryName": "Pip install Keeping Cached Packages",
+   "platform": "dockerfile",
+   "rule": "DF014",
+   "file": "kics/dockerfile/pip-install-keeping-cached-packages/negative-1.dockerfile",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "ae5b6871-7f45-42e0-bb4c-ab300c4d2026",
+   "queryName": "Privileged Containers Enabled",
+   "platform": "dockercompose",
+   "rule": "DC001",
+   "file": "kics/dockercompose/privileged-containers-enabled/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    10
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "ae5b6871-7f45-42e0-bb4c-ab300c4d2026",
+   "queryName": "Privileged Containers Enabled",
+   "platform": "dockercompose",
+   "rule": "DC001",
+   "file": "kics/dockercompose/privileged-containers-enabled/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    13
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "ae5b6871-7f45-42e0-bb4c-ab300c4d2026",
+   "queryName": "Privileged Containers Enabled",
+   "platform": "dockercompose",
+   "rule": "DC001",
+   "file": "kics/dockercompose/privileged-containers-enabled/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "ae5b6871-7f45-42e0-bb4c-ab300c4d2026",
+   "queryName": "Privileged Containers Enabled",
+   "platform": "dockercompose",
+   "rule": "DC001",
+   "file": "kics/dockercompose/privileged-containers-enabled/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "d6355c88-1e8d-49e9-b2f2-f8a1ca12c75b",
+   "queryName": "Docker Socket Mounted In Container",
+   "platform": "dockercompose",
+   "rule": "DC002",
+   "file": "kics/dockercompose/docker-socket-mounted-in-container/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    9
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "d6355c88-1e8d-49e9-b2f2-f8a1ca12c75b",
+   "queryName": "Docker Socket Mounted In Container",
+   "platform": "dockercompose",
+   "rule": "DC002",
+   "file": "kics/dockercompose/docker-socket-mounted-in-container/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    10
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    6
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-3.yaml",
+   "expect": "positive",
+   "lines": [
+    11
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "4f31dd9f-2cc3-4751-9b53-67e4af83dac0",
+   "queryName": "Host Namespace is Shared",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-3.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "baa3890f-bed7-46f5-ab8f-1da8fc91c729",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-ipc-namespace/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    10
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "baa3890f-bed7-46f5-ab8f-1da8fc91c729",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-ipc-namespace/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    13
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "baa3890f-bed7-46f5-ab8f-1da8fc91c729",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-ipc-namespace/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "baa3890f-bed7-46f5-ab8f-1da8fc91c729",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-ipc-namespace/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "071a71ff-f868-47a4-ac0b-3c59e4ab5443",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-network-namespace/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    11
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "071a71ff-f868-47a4-ac0b-3c59e4ab5443",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "dockercompose",
+   "rule": "DC003",
+   "file": "kics/dockercompose/shared-host-network-namespace/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "404fde2c-bc4b-4371-9747-7054132ac953",
+   "queryName": "Default Seccomp Profile Disabled",
+   "platform": "dockercompose",
+   "rule": "DC007",
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    13
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "404fde2c-bc4b-4371-9747-7054132ac953",
+   "queryName": "Default Seccomp Profile Disabled",
+   "platform": "dockercompose",
+   "rule": "DC007",
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    10
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "404fde2c-bc4b-4371-9747-7054132ac953",
+   "queryName": "Default Seccomp Profile Disabled",
+   "platform": "dockercompose",
+   "rule": "DC007",
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "dd29336b-fe57-445b-a26e-e6aa867ae609",
+   "queryName": "Container Is Privileged",
+   "platform": "kubernetes",
+   "rule": "K8S001",
+   "file": "kics/kubernetes/container-is-privileged/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    10,
+    23
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "dd29336b-fe57-445b-a26e-e6aa867ae609",
+   "queryName": "Container Is Privileged",
+   "platform": "kubernetes",
+   "rule": "K8S001",
+   "file": "kics/kubernetes/container-is-privileged/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    21
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "dd29336b-fe57-445b-a26e-e6aa867ae609",
+   "queryName": "Container Is Privileged",
+   "platform": "kubernetes",
+   "rule": "K8S001",
+   "file": "kics/kubernetes/container-is-privileged/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    43,
+    12,
+    28
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    17,
+    12
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-3.yaml",
+   "expect": "positive",
+   "lines": [
+    12
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-4.yaml",
+   "expect": "positive",
+   "lines": [
+    11,
+    7
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-5.yaml",
+   "expect": "positive",
+   "lines": [
+    42,
+    20
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-6.yaml",
+   "expect": "positive",
+   "lines": [
+    17,
+    37
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/positive-7.yaml",
+   "expect": "positive",
+   "lines": [
+    18,
+    36
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/negative-3.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cf34805e-3872-4c08-bf92-6ff7bb0cfadb",
+   "queryName": "Container Running As Root",
+   "platform": "kubernetes",
+   "rule": "K8S002",
+   "file": "kics/kubernetes/container-running-as-root/negative-4.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "5572cc5e-1e4c-4113-92a6-7a8a3bd25e6d",
+   "queryName": "Privilege Escalation Allowed",
+   "platform": "kubernetes",
+   "rule": "K8S003",
+   "file": "kics/kubernetes/privilege-escalation-allowed/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    10,
+    21
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "5572cc5e-1e4c-4113-92a6-7a8a3bd25e6d",
+   "queryName": "Privilege Escalation Allowed",
+   "platform": "kubernetes",
+   "rule": "K8S003",
+   "file": "kics/kubernetes/privilege-escalation-allowed/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    9,
+    13,
+    17
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "5572cc5e-1e4c-4113-92a6-7a8a3bd25e6d",
+   "queryName": "Privilege Escalation Allowed",
+   "platform": "kubernetes",
+   "rule": "K8S003",
+   "file": "kics/kubernetes/privilege-escalation-allowed/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "a9c2f49d-0671-4fc9-9ece-f4e261e128d0",
+   "queryName": "Root Container Not Mounted Read-only",
+   "platform": "kubernetes",
+   "rule": "K8S004",
+   "file": "kics/kubernetes/root-container-not-mounted-read-only/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    24,
+    12
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "a9c2f49d-0671-4fc9-9ece-f4e261e128d0",
+   "queryName": "Root Container Not Mounted Read-only",
+   "platform": "kubernetes",
+   "rule": "K8S004",
+   "file": "kics/kubernetes/root-container-not-mounted-read-only/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "268ca686-7fb7-4ae9-b129-955a2a89064e",
+   "queryName": "No Drop Capabilities for Containers",
+   "platform": "kubernetes",
+   "rule": "K8S005",
+   "file": "kics/kubernetes/no-drop-capabilities-for-containers/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    26,
+    28,
+    21
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "268ca686-7fb7-4ae9-b129-955a2a89064e",
+   "queryName": "No Drop Capabilities for Containers",
+   "platform": "kubernetes",
+   "rule": "K8S005",
+   "file": "kics/kubernetes/no-drop-capabilities-for-containers/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "235236ee-ad78-4065-bd29-61b061f28ce0",
+   "queryName": "Containers With Sys Admin Capabilities",
+   "platform": "kubernetes",
+   "rule": "K8S006",
+   "file": "kics/kubernetes/containers-with-sys-admin-capabilities/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    12
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "235236ee-ad78-4065-bd29-61b061f28ce0",
+   "queryName": "Containers With Sys Admin Capabilities",
+   "platform": "kubernetes",
+   "rule": "K8S006",
+   "file": "kics/kubernetes/containers-with-sys-admin-capabilities/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "302736f4-b16c-41b8-befe-c0baffa0bd9d",
+   "queryName": "Shared Host PID Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-pid-namespace/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    6
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "302736f4-b16c-41b8-befe-c0baffa0bd9d",
+   "queryName": "Shared Host PID Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-pid-namespace/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    9
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "302736f4-b16c-41b8-befe-c0baffa0bd9d",
+   "queryName": "Shared Host PID Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-pid-namespace/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "302736f4-b16c-41b8-befe-c0baffa0bd9d",
+   "queryName": "Shared Host PID Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-pid-namespace/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cd290efd-6c82-4e9d-a698-be12ae31d536",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-ipc-namespace/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    6
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cd290efd-6c82-4e9d-a698-be12ae31d536",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-ipc-namespace/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    9
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "cd290efd-6c82-4e9d-a698-be12ae31d536",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-ipc-namespace/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "cd290efd-6c82-4e9d-a698-be12ae31d536",
+   "queryName": "Shared Host IPC Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-ipc-namespace/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "6b6bdfb3-c3ae-44cb-88e4-7405c1ba2c8a",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-network-namespace/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    6
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "6b6bdfb3-c3ae-44cb-88e4-7405c1ba2c8a",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-network-namespace/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    9
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "6b6bdfb3-c3ae-44cb-88e4-7405c1ba2c8a",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-network-namespace/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "6b6bdfb3-c3ae-44cb-88e4-7405c1ba2c8a",
+   "queryName": "Shared Host Network Namespace",
+   "platform": "kubernetes",
+   "rule": "K8S007",
+   "file": "kics/kubernetes/shared-host-network-namespace/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "5308a7a8-06f8-45ac-bf10-791fe21de46e",
+   "queryName": "Workload Mounting With Sensitive OS Directory",
+   "platform": "kubernetes",
+   "rule": "K8S008",
+   "file": "kics/kubernetes/workload-mounting-with-sensitive-os-directory/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    193,
+    66,
+    229,
+    70,
+    265,
+    203,
+    299,
+    175,
+    112,
+    145,
+    115,
+    280,
+    250
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "5308a7a8-06f8-45ac-bf10-791fe21de46e",
+   "queryName": "Workload Mounting With Sensitive OS Directory",
+   "platform": "kubernetes",
+   "rule": "K8S008",
+   "file": "kics/kubernetes/workload-mounting-with-sensitive-os-directory/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "a6f34658-fdfb-4154-9536-56d516f65828",
+   "queryName": "Docker Daemon Socket is Exposed to Containers",
+   "platform": "kubernetes",
+   "rule": "K8S008",
+   "file": "kics/kubernetes/docker-daemon-socket-is-exposed-to-containers/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    67,
+    43,
+    15
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "a6f34658-fdfb-4154-9536-56d516f65828",
+   "queryName": "Docker Daemon Socket is Exposed to Containers",
+   "platform": "kubernetes",
+   "rule": "K8S008",
+   "file": "kics/kubernetes/docker-daemon-socket-is-exposed-to-containers/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "583053b7-e632-46f0-b989-f81ff8045385",
+   "queryName": "Invalid Image Tag",
+   "platform": "kubernetes",
+   "rule": "K8S009",
+   "file": "kics/kubernetes/invalid-image-tag/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    8,
+    19
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "583053b7-e632-46f0-b989-f81ff8045385",
+   "queryName": "Invalid Image Tag",
+   "platform": "kubernetes",
+   "rule": "K8S009",
+   "file": "kics/kubernetes/invalid-image-tag/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "b14d1bc4-a208-45db-92f0-e21f8e2588e9",
+   "queryName": "Memory Limits Not Defined",
+   "platform": "kubernetes",
+   "rule": "K8S010",
+   "file": "kics/kubernetes/memory-limits-not-defined/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    8,
+    57,
+    38,
+    23
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "b14d1bc4-a208-45db-92f0-e21f8e2588e9",
+   "queryName": "Memory Limits Not Defined",
+   "platform": "kubernetes",
+   "rule": "K8S010",
+   "file": "kics/kubernetes/memory-limits-not-defined/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    21
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "b14d1bc4-a208-45db-92f0-e21f8e2588e9",
+   "queryName": "Memory Limits Not Defined",
+   "platform": "kubernetes",
+   "rule": "K8S010",
+   "file": "kics/kubernetes/memory-limits-not-defined/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "b14d1bc4-a208-45db-92f0-e21f8e2588e9",
+   "queryName": "Memory Limits Not Defined",
+   "platform": "kubernetes",
+   "rule": "K8S010",
+   "file": "kics/kubernetes/memory-limits-not-defined/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "48471392-d4d0-47c0-b135-cdec95eb3eef",
+   "queryName": "Service Account Token Automount Not Disabled",
+   "platform": "kubernetes",
+   "rule": "K8S012",
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    28,
+    5,
+    54
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "48471392-d4d0-47c0-b135-cdec95eb3eef",
+   "queryName": "Service Account Token Automount Not Disabled",
+   "platform": "kubernetes",
+   "rule": "K8S012",
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/positive-2.yaml",
+   "expect": "positive",
+   "lines": [
+    5
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "48471392-d4d0-47c0-b135-cdec95eb3eef",
+   "queryName": "Service Account Token Automount Not Disabled",
+   "platform": "kubernetes",
+   "rule": "K8S012",
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "48471392-d4d0-47c0-b135-cdec95eb3eef",
+   "queryName": "Service Account Token Automount Not Disabled",
+   "platform": "kubernetes",
+   "rule": "K8S012",
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/negative-2.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "6b896afb-ca07-467a-b256-1a0077a1c08e",
+   "queryName": "RBAC Wildcard In Rule",
+   "platform": "kubernetes",
+   "rule": "K8S013",
+   "file": "kics/kubernetes/rbac-wildcard-in-rule/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    7,
+    9,
+    18,
+    19,
+    20,
+    29,
+    31
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "6b896afb-ca07-467a-b256-1a0077a1c08e",
+   "queryName": "RBAC Wildcard In Rule",
+   "platform": "kubernetes",
+   "rule": "K8S013",
+   "file": "kics/kubernetes/rbac-wildcard-in-rule/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "kics",
+   "query": "249328b8-5f0f-409f-b1dd-029f07882e11",
+   "queryName": "Cluster Admin Rolebinding With Superuser Permissions",
+   "platform": "kubernetes",
+   "rule": "K8S014",
+   "file": "kics/kubernetes/cluster-admin-rolebinding-with-superuser-permissions/positive-1.yaml",
+   "expect": "positive",
+   "lines": [
+    11
+   ]
+  },
+  {
+   "source": "kics",
+   "query": "249328b8-5f0f-409f-b1dd-029f07882e11",
+   "queryName": "Cluster Admin Rolebinding With Superuser Permissions",
+   "platform": "kubernetes",
+   "rule": "K8S014",
+   "file": "kics/kubernetes/cluster-admin-rolebinding-with-superuser-permissions/negative-1.yaml",
+   "expect": "negative",
+   "lines": []
+  },
+  {
+   "source": "gixy",
+   "plugin": "version_disclosure",
+   "rules": [
+    "NG001"
+   ],
+   "file": "gixy/version_disclosure/server_tokens_off_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "version_disclosure",
+   "rules": [
+    "NG001"
+   ],
+   "file": "gixy/version_disclosure/server_tokens_on.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/prefer_on.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/prefer_on_prioritize_chacha_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/secure_config_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/tls13_only_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/tls13_only_no_ciphers_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/weak_ciphers.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "weak_ssl_tls",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "file": "gixy/weak_ssl_tls/weak_protocols.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "hsts_header",
+   "rules": [
+    "NG005"
+   ],
+   "file": "gixy/hsts_header/missing_hsts.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "hsts_header",
+   "rules": [
+    "NG005"
+   ],
+   "file": "gixy/hsts_header/more_set_headers_hsts_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "hsts_header",
+   "rules": [
+    "NG005"
+   ],
+   "file": "gixy/hsts_header/security_headers_http_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "hsts_header",
+   "rules": [
+    "NG005"
+   ],
+   "file": "gixy/hsts_header/security_headers_on_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "hsts_header",
+   "rules": [
+    "NG005"
+   ],
+   "file": "gixy/hsts_header/with_hsts_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/nested.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/nested_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/not_slashed_alias.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/not_slashed_alias_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_2.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_2_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_3.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_3_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_4.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_4_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_5.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_6.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/regex_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/simple.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/simple_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/slashed_alias.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "alias_traversal",
+   "rules": [
+    "NG007"
+   ],
+   "file": "gixy/alias_traversal/slashed_alias_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/cache_control_no_store.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/cache_control_private.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/cache_control_public_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/content_disposition_attachment.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/duplicate_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/expires_zero.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_absent.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_ancestor_merge_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_merge_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_nearest_on.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_off.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/header_inherit_on.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/if_replaces.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/location_replaces.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/nested_block.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/non_block_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/not_secure_dropped.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/not_secure_outer.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/pragma_no_cache.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/step_replaces.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/trailer_inherit_absent.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/trailer_inherit_ancestor_merge_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/trailer_inherit_merge_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/trailer_inherit_off.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "add_header_redefinition",
+   "rules": [
+    "NG008"
+   ],
+   "file": "gixy/add_header_redefinition/trailer_inherit_on.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/add_header_uri.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/dont_report_not_resolved_var_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/if_block.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/if_block_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_host_source_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_unsafe_uri.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_unsafe_uri_capture_sanitized_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_2.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_3.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_3_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_4.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_4_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/mapped_value_with_set.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_from_location_var.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_from_location_var_var.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_from_location_var_var_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_from_location_var_var_var.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_pass_cr_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_pass_ducument_uri.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_pass_lf.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/proxy_set_header_ducument_uri.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/return_403_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/return_request_uri_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/rewrite_extract_fp.conf",
+   "expect": "negative"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/rewrite_uri.conf",
+   "expect": "positive"
+  },
+  {
+   "source": "gixy",
+   "plugin": "http_splitting",
+   "rules": [
+    "NG011"
+   ],
+   "file": "gixy/http_splitting/rewrite_uri_after_var.conf",
+   "expect": "positive"
+  }
+ ]
+}

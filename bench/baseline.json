@@ -1,0 +1,2003 @@
+{
+ "test": {
+  "by": {
+   "dockerfile": {
+    "tp": 5,
+    "fn": 1,
+    "fp": 0,
+    "tn": 5,
+    "errors": 0
+   },
+   "compose": {
+    "tp": 6,
+    "fn": 0,
+    "fp": 0,
+    "tn": 3,
+    "errors": 0
+   },
+   "kubernetes": {
+    "tp": 12,
+    "fn": 2,
+    "fp": 0,
+    "tn": 11,
+    "errors": 0
+   },
+   "nginx": {
+    "tp": 4,
+    "fn": 14,
+    "fp": 2,
+    "tn": 14,
+    "errors": 0
+   },
+   "sshd": {
+    "tp": 0,
+    "fn": 0,
+    "fp": 0,
+    "tn": 0,
+    "errors": 0
+   }
+  },
+  "all": {
+   "tp": 27,
+   "fn": 17,
+   "fp": 2,
+   "tn": 33,
+   "errors": 0
+  }
+ },
+ "all": {
+  "by": {
+   "dockerfile": {
+    "tp": 14,
+    "fn": 1,
+    "fp": 4,
+    "tn": 13,
+    "errors": 0
+   },
+   "compose": {
+    "tp": 11,
+    "fn": 0,
+    "fp": 0,
+    "tn": 10,
+    "errors": 0
+   },
+   "kubernetes": {
+    "tp": 26,
+    "fn": 3,
+    "fp": 3,
+    "tn": 21,
+    "errors": 0
+   },
+   "nginx": {
+    "tp": 12,
+    "fn": 36,
+    "fp": 5,
+    "tn": 31,
+    "errors": 0
+   },
+   "sshd": {
+    "tp": 0,
+    "fn": 0,
+    "fp": 0,
+    "tn": 0,
+    "errors": 0
+   }
+  },
+  "all": {
+   "tp": 63,
+   "fn": 40,
+   "fp": 12,
+   "tn": 75,
+   "errors": 0
+  }
+ },
+ "cases": [
+  {
+   "file": "kics/dockerfile/image-version-using-latest/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-using-latest/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/positive-1.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/positive-2.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/positive-3.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/positive-4.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/negative-1.dockerfile",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/negative-2.dockerfile",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/negative-3.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/image-version-not-explicit/negative-4.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/last-user-is-root/positive-1.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/last-user-is-root/negative-1.dockerfile",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DF002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/last-user-is-root/negative-2.dockerfile",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DF002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/missing-user-instruction/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/missing-user-instruction/positive-2.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/missing-user-instruction/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF002"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/dockerfile/missing-user-instruction/negative-2.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/missing-user-instruction/negative-3.dockerfile",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DF002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/add-instead-of-copy/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF004"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/add-instead-of-copy/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF004"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF006"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/positive-2.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF006"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF006"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/dockerfile/apt-get-install-lists-were-not-deleted/negative-2.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF006"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/dockerfile/run-using-sudo/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/run-using-sudo/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/exposing-port-22-ssh/positive-1.dockerfile",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DF009"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/exposing-port-22-ssh/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF009"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/maintainer-instruction-being-used/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF010"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/maintainer-instruction-being-used/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF010"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/pip-install-keeping-cached-packages/positive-1.dockerfile",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DF014"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockerfile/pip-install-keeping-cached-packages/negative-1.dockerfile",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DF014"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/privileged-containers-enabled/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DC001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/privileged-containers-enabled/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DC001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/privileged-containers-enabled/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/privileged-containers-enabled/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/docker-socket-mounted-in-container/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/docker-socket-mounted-in-container/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/positive-3.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-2.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/host-namespace-is-shared/negative-3.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-ipc-namespace/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-ipc-namespace/positive-2.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-ipc-namespace/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-ipc-namespace/negative-2.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-network-namespace/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DC003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/shared-host-network-namespace/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "DC007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "DC007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/dockercompose/default-seccomp-profile-disabled/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "DC007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-is-privileged/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-is-privileged/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S001"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-is-privileged/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-2.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-3.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-4.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-5.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-6.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/positive-7.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/negative-3.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/container-running-as-root/negative-4.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S002"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/privilege-escalation-allowed/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/privilege-escalation-allowed/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S003"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/privilege-escalation-allowed/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/root-container-not-mounted-read-only/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S004"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/root-container-not-mounted-read-only/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S004"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/no-drop-capabilities-for-containers/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S005"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/no-drop-capabilities-for-containers/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S005"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/containers-with-sys-admin-capabilities/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S006"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/containers-with-sys-admin-capabilities/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S006"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-pid-namespace/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-pid-namespace/positive-2.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/shared-host-pid-namespace/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-pid-namespace/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-ipc-namespace/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-ipc-namespace/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/shared-host-ipc-namespace/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-ipc-namespace/negative-2.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-network-namespace/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-network-namespace/positive-2.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/shared-host-network-namespace/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/shared-host-network-namespace/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/workload-mounting-with-sensitive-os-directory/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/workload-mounting-with-sensitive-os-directory/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S008"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/docker-daemon-socket-is-exposed-to-containers/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/docker-daemon-socket-is-exposed-to-containers/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S008"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/invalid-image-tag/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S009"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/invalid-image-tag/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S009"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/memory-limits-not-defined/positive-1.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S010"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/memory-limits-not-defined/positive-2.yaml",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "K8S010"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/memory-limits-not-defined/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S010"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/memory-limits-not-defined/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S010"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S012"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/positive-2.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S012"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/negative-1.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S012"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/service-account-token-automount-not-disabled/negative-2.yaml",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "K8S012"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "kics/kubernetes/rbac-wildcard-in-rule/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S013"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/rbac-wildcard-in-rule/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S013"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/cluster-admin-rolebinding-with-superuser-permissions/positive-1.yaml",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "K8S014"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "kics/kubernetes/cluster-admin-rolebinding-with-superuser-permissions/negative-1.yaml",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "K8S014"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/version_disclosure/server_tokens_off_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG001"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/version_disclosure/server_tokens_on.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG001"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/weak_ssl_tls/prefer_on.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/weak_ssl_tls/prefer_on_prioritize_chacha_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/weak_ssl_tls/secure_config_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/weak_ssl_tls/tls13_only_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/weak_ssl_tls/tls13_only_no_ciphers_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/weak_ssl_tls/weak_ciphers.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/weak_ssl_tls/weak_protocols.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG002",
+    "NG003"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/hsts_header/missing_hsts.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG005"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/hsts_header/more_set_headers_hsts_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG005"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "gixy/hsts_header/security_headers_http_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG005"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "gixy/hsts_header/security_headers_on_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG005"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "gixy/hsts_header/with_hsts_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG005"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/nested.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/nested_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/not_slashed_alias.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/not_slashed_alias_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/regex.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_2.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_2_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/regex_3.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_3_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/regex_4.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_4_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/regex_5.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_6.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/regex_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/simple.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/simple_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/alias_traversal/slashed_alias.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/alias_traversal/slashed_alias_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG007"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/cache_control_no_store.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/cache_control_private.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/cache_control_public_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/content_disposition_attachment.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/duplicate_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/expires_zero.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_absent.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_ancestor_merge_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_merge_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_nearest_on.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_off.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/header_inherit_on.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/if_replaces.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/location_replaces.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/nested_block.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/non_block_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/not_secure_dropped.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/not_secure_outer.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/pragma_no_cache.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/step_replaces.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": true,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/trailer_inherit_absent.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/trailer_inherit_ancestor_merge_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/trailer_inherit_merge_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/add_header_redefinition/trailer_inherit_off.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/add_header_redefinition/trailer_inherit_on.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG008"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/add_header_uri.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/dont_report_not_resolved_var_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/if_block.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/if_block_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_host_source_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_unsafe_uri.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/mapped_unsafe_uri_capture_sanitized_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_2.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_3.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_3_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_4.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_4_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/mapped_value_with_set.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_from_location_var.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_from_location_var_var.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_from_location_var_var_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/proxy_from_location_var_var_var.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_pass_cr_fp.conf",
+   "set": "test",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/proxy_pass_ducument_uri.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_pass_lf.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/proxy_set_header_ducument_uri.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/return_403_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/return_request_uri_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/rewrite_extract_fp.conf",
+   "set": "dev",
+   "expect": "negative",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": true
+  },
+  {
+   "file": "gixy/http_splitting/rewrite_uri.conf",
+   "set": "test",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  },
+  {
+   "file": "gixy/http_splitting/rewrite_uri_after_var.conf",
+   "set": "dev",
+   "expect": "positive",
+   "rules": [
+    "NG011"
+   ],
+   "fired": false,
+   "ok": false
+  }
+ ]
+}
