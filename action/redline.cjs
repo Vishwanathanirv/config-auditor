@@ -7469,6 +7469,9 @@ var Yaml = class {
   setValue(pair, value) {
     const l = this.line(pair);
     const text2 = this.lines[l - 1];
+    const key = String((0, import_yaml.isScalar)(pair.key) ? pair.key.value : "");
+    if (!key || !new RegExp(`^\\s*(-\\s+)?["']?${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']?\\s*:`).test(text2)) return void 0;
+    if ((0, import_yaml.isMap)(pair.value) || (0, import_yaml.isSeq)(pair.value)) return void 0;
     const m = text2.match(/^(\s*(?:-\s+)?[^:#]+:\s*)(.*?)(\s+#.*)?$/);
     if (!m) return void 0;
     return { start: l, end: l + 1, lines: [`${m[1]}${value}${m[3] ?? ""}`] };
@@ -7555,7 +7558,9 @@ function checkCompose(y) {
           let published;
           let target;
           if ((0, import_yaml.isScalar)(item)) {
-            const parts = String(item.value).replace(/\/(tcp|udp)$/, "").split(":");
+            const raw = String(item.value).replace(/\/(tcp|udp)$/, "");
+            const v6 = raw.match(/^\[([^\]]*)\]:(.*)$/);
+            const parts = v6 ? [v6[1], ...v6[2].split(":")] : raw.split(":");
             target = +parts[parts.length - 1];
             if (parts.length === 3) {
               host = parts[0];
@@ -7591,7 +7596,12 @@ function checkCompose(y) {
       }
       const sec = get(s, "security_opt");
       if ((0, import_yaml.isSeq)(sec)) {
-        for (const o of sec.items) if ((0, import_yaml.isScalar)(o) && /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(o.value))) add("DC007", y.line(o), `\`${name}\` turns off \`${String(o.value).split(/[:=]/)[0]}\`.`, sec.items.length === 1 ? [deleteLines(y.line(p("security_opt")), y.line(o))] : [deleteLines(y.line(o))]);
+        for (const o of sec.items) if ((0, import_yaml.isScalar)(o) && /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(o.value))) {
+          const unsafe = (v) => /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(v));
+          const allBad = sec.items.every((x) => (0, import_yaml.isScalar)(x) && unsafe(x.value));
+          const edits = sec.flow ? void 0 : allBad ? [deleteLines(y.line(p("security_opt")), y.line(sec.items[sec.items.length - 1]))] : [deleteLines(y.line(o))];
+          add("DC007", y.line(o), `\`${name}\` turns off \`${String(o.value).split(/[:=]/)[0]}\`.`, edits);
+        }
       }
       const image = scalar(get(s, "image"));
       if (typeof image === "string" && !get(s, "build") && !image.includes("@sha256:") && !image.includes("${")) {
@@ -7604,10 +7614,20 @@ function checkCompose(y) {
 }
 
 // ../core/src/dockerfile.ts
+function escapeChar(lines) {
+  for (const l of lines) {
+    const m = l.match(/^\s*#\s*([a-z]+)\s*=\s*(\S+)\s*$/i);
+    if (!m) break;
+    if (m[1].toLowerCase() === "escape" && (m[2] === "`" || m[2] === "\\")) return m[2];
+  }
+  return "\\";
+}
 function parseDockerfile(text2) {
   const lines = text2.split(/\r?\n/);
   const instrs = [];
   const stages = [];
+  const esc = escapeChar(lines);
+  const trailing = new RegExp(`${esc === "`" ? "`" : "\\\\"}\\s*$`);
   let i = 0;
   while (i < lines.length) {
     const raw = lines[i];
@@ -7617,21 +7637,25 @@ function parseDockerfile(text2) {
     }
     const start = i;
     let body = raw;
-    while (/\\\s*$/.test(lines[i]) && i + 1 < lines.length) {
+    let cont = trailing.test(raw);
+    while (cont && i + 1 < lines.length) {
       i++;
-      if (lines[i].trim().startsWith("#")) continue;
-      body = body.replace(/\\\s*$/, " ") + lines[i].trim();
+      const t = lines[i].trim();
+      if (!t || t.startsWith("#")) continue;
+      body = body.replace(trailing, " ") + t;
+      cont = trailing.test(lines[i]);
     }
     const m = body.trim().match(/^(\w+)\s*(.*)$/s);
     if (m) {
       const cmd = m[1].toUpperCase();
-      const args = m[2].trim();
+      let args = m[2].trim();
       const hd2 = args.match(/<<-?["']?(\w+)["']?/);
       let end = i;
       if (hd2) {
         let j = i + 1;
         while (j < lines.length && lines[j].trim() !== hd2[1]) j++;
         end = Math.min(j, lines.length - 1);
+        args += "\n" + lines.slice(i + 1, j).join("\n");
         i = end;
       }
       if (cmd === "FROM") {
@@ -7681,12 +7705,21 @@ function checkDockerfile(text2) {
   if (last >= 0) {
     const finalInstrs = instrs.filter((x) => x.stage === last);
     const users = finalInstrs.filter((x) => x.cmd === "USER");
+    let inherited;
+    for (let st = last, seen = 0; !users.length && seen < stages.length; seen++) {
+      const parent = stages.findIndex((p, k) => k < st && p.alias?.toLowerCase() === stages[st].image.toLowerCase());
+      if (parent < 0) break;
+      inherited = instrs.filter((x) => x.stage === parent && x.cmd === "USER").at(-1);
+      if (inherited) break;
+      st = parent;
+    }
     const lastUser = users.at(-1);
-    const isRoot = !lastUser || /^(root|0)(:|$)/.test(lastUser.args.trim());
+    const effectiveUser = lastUser ?? inherited;
+    const isRoot = !effectiveUser || /^(root|0)(:|$)/.test(effectiveUser.args.trim());
     if (isRoot) {
       const run = finalInstrs.find((x) => x.cmd === "CMD" || x.cmd === "ENTRYPOINT");
       const user = /(^|\/)node:/.test(stages[last].image) || stages[last].image === "node" ? "node" : "10001:10001";
-      const edits = lastUser ? [replaceLine(lastUser.line, `USER ${user}`, lines)] : run ? [insertBefore(run.line, [`USER ${user}`])] : [{ start: lines.length + 1, end: lines.length + 1, lines: [`USER ${user}`] }];
+      const edits = lastUser ? [replaceLine(lastUser.line, `USER ${user}`, lines)] : run ? [insertBefore(run.line, [`USER ${user}`])] : [{ start: lines.at(-1) === "" ? lines.length : lines.length + 1, end: lines.at(-1) === "" ? lines.length : lines.length + 1, lines: [`USER ${user}`] }];
       add("DF002", lastUser?.line ?? stages[last].line, lastUser ? `\`USER ${lastUser.args}\` is the last user set, so the app runs as root.` : "No `USER` in the final stage, so the app runs as root.", edits);
     }
   }
@@ -7786,13 +7819,19 @@ var CRITICAL_PATHS = /^\/(|etc|root|proc|sys|var\/run\/docker\.sock|var\/run|run
 function checkKubernetes(y) {
   const out = [];
   const add = (rule, line, message, edits, severity) => out.push({ rule, severity: severity ?? KUBERNETES_RULES.find((r) => r.id === rule).severity, line, message, edits });
+  const quietAccounts = /* @__PURE__ */ new Set();
+  for (const doc of y.docs) {
+    const r = doc.contents;
+    if ((0, import_yaml.isMap)(r) && scalar(get(r, "kind")) === "ServiceAccount" && scalar(get(r, "automountServiceAccountToken")) === false) quietAccounts.add(String(scalar(get(r, "metadata", "name"))));
+  }
   y.docs.forEach((doc, di) => {
     const root = doc.contents;
     if (!(0, import_yaml.isMap)(root)) return;
     const kind = String(scalar(get(root, "kind")) ?? "");
     const name = String(scalar(get(root, "metadata", "name")) ?? kind);
-    if (WORKLOADS.has(kind)) {
-      const podPath = kind === "Pod" ? ["spec"] : kind === "CronJob" ? ["spec", "jobTemplate", "spec", "template", "spec"] : ["spec", "template", "spec"];
+    const podPath = kind === "Pod" ? ["spec"] : kind === "CronJob" ? ["spec", "jobTemplate", "spec", "template", "spec"] : ["spec", "template", "spec"];
+    const isWorkload = WORKLOADS.has(kind) || kind !== "" && (0, import_yaml.isSeq)(get(root, "spec", "template", "spec", "containers"));
+    if (isWorkload) {
       const pod = get(root, ...podPath);
       if (!(0, import_yaml.isMap)(pod)) return;
       const podSc = get(pod, "securityContext");
@@ -7809,7 +7848,8 @@ function checkKubernetes(y) {
         }
       }
       const sa = pairOf(pod, "automountServiceAccountToken");
-      if (!sa || truthy(sa.value)) {
+      const account = String(scalar(get(pod, "serviceAccountName")) ?? scalar(get(pod, "serviceAccount")) ?? "");
+      if (sa ? truthy(sa.value) : !quietAccounts.has(account)) {
         const edits = sa ? [y.setValue(sa, "false")] : pod.flow ? [] : [{ start: y.lastLine(pod) + 1, end: y.lastLine(pod) + 1, lines: [`${y.indent(pod)}automountServiceAccountToken: false`], merge: { key: `${di}.pod.sa`, header: [] } }];
         add("K8S012", sa ? y.line(sa) : y.line(pairOf(root, "kind")), `\`${name}\` mounts an API token into its pods.`, edits.filter(Boolean));
       }
@@ -7960,7 +8000,7 @@ function parseNginx(text2) {
       i = j + 1;
     } else {
       let j = i;
-      while (j < text2.length && !/[\s;{}"'#]/.test(text2[j])) j++;
+      while (j < text2.length && !/[\s;{}"']/.test(text2[j])) j++;
       if (text2[j] === "{" && text2[j - 1] === "$") {
         const k = text2.indexOf("}", j);
         j = k < 0 ? text2.length : k + 1;
@@ -8008,7 +8048,56 @@ var openLine = (block, lines) => {
   while (l <= lines.length && !lines[l - 1].includes("{")) l++;
   return l;
 };
-var headers = (list) => list.filter((d) => d.name === "add_header");
+var headers = (list) => list.filter((d) => d.name === "add_header" || d.name === "more_set_headers");
+var headerName = (h) => h.name === "more_set_headers" ? (h.args.find((a) => !a.startsWith("-")) ?? "").split(":")[0].trim() : h.args[0] ?? "";
+var SINKS = {
+  add_header: (a) => a.slice(1, 2),
+  more_set_headers: (a) => a.filter((x) => !x.startsWith("-")),
+  proxy_set_header: (a) => a.slice(1, 2),
+  proxy_pass: (a) => a.slice(0, 1),
+  // `return 301 URL` (or `return URL`) puts URL in the Location header; `return 200 text` is a body.
+  return: (a) => a.length === 2 && /^30[1278]$/.test(a[0]) ? [a[1]] : a.length === 1 && !/^\d+$/.test(a[0]) ? [a[0]] : []
+};
+var matchesNewline = (re) => /\\[sWD]/.test(re) || /\[\^(?![^\]]*(\\n|\\s))[^\]]*\]/.test(re);
+var isGroup = (re, i) => re[i] === "(" && (re[i + 1] !== "?" || re[i + 2] === "<" || re[i + 2] === "P");
+function groupBody(re, open) {
+  let depth = 0;
+  for (let j = open; j < re.length; j++) {
+    if (re[j] === "\\") j++;
+    else if (re[j] === "(") depth++;
+    else if (re[j] === ")" && --depth === 0) return re.slice(open + 1, j).replace(/^\?P?<\w+>/, "");
+  }
+  return re.slice(open + 1);
+}
+function groups(re) {
+  const out = [];
+  for (let i = 0; i < re.length; i++) {
+    if (re[i] === "\\") i++;
+    else if (re[i] === "[") {
+      while (i < re.length && re[i] !== "]") i += re[i] === "\\" ? 2 : 1;
+    } else if (isGroup(re, i)) out.push({ n: String(out.length + 1), name: re.slice(i).match(/^\(\?P?<(\w+)>/)?.[1], body: groupBody(re, i), at: i });
+  }
+  return out;
+}
+function regexGroups(re) {
+  const out = /* @__PURE__ */ new Map();
+  for (const g of groups(re)) {
+    out.set(g.n, matchesNewline(g.body));
+    if (g.name) out.set(g.name, matchesNewline(g.body));
+  }
+  return out;
+}
+function unsafeAliasCapture(re, alias) {
+  const used = [...alias.matchAll(/\$\{?(\w+)\}?/g)].map((m) => m[1]);
+  for (const g of groups(re)) {
+    const v = used.find((u) => u === g.n || u === g.name);
+    if (!v) continue;
+    const afterSlash = re.slice(0, g.at).replace(/\^$/, "").endsWith("/") || g.body.startsWith("/");
+    const noDot = /^\[\^[^\]]*\\?\.[^\]]*\][*+?]?$/.test(g.body) || /^[\w|-]*$/.test(g.body);
+    if (!afterSlash && !noDot) return `$${v}`;
+  }
+  return void 0;
+}
 function checkNginx(text2) {
   const { root, errors } = parseNginx(text2);
   const lines = text2.split(/\r?\n/);
@@ -8017,17 +8106,44 @@ function checkNginx(text2) {
   const http = root.find((d) => d.name === "http");
   const servers = [];
   walk(root, (d) => isServer(d) && d.block && servers.push(d));
-  if (!servers.length && !http) return { findings: out, errors };
+  const fragment = !servers.length && !http;
   const tokens = [];
   walk(root, (d) => d.name === "server_tokens" && tokens.push(d));
-  const offAtTop = tokens.some((t) => t.args[0] === "off" && (t.parent === http || t.parent === void 0));
   for (const t of tokens) if (t.args[0] === "on" || t.args[0] === "build") add("NG001", t.line, `\`server_tokens ${t.args[0]}\` shows the nginx version.`, [replaceLine(t.line, "server_tokens off;", lines)]);
-  if (!tokens.length || !offAtTop && !tokens.some((t) => t.args[0] === "off")) {
+  if (!fragment) {
     if (!tokens.length) {
       const host = http ?? servers[0];
       const l = openLine(host, lines);
       add("NG001", host.line, "`server_tokens` isn't set, so it defaults to on.", [insertAfter(l, [`${indentFor(lines, host)}server_tokens off;`])]);
     }
+  }
+  const taintedVars = /* @__PURE__ */ new Set();
+  const capturesOf = (d) => {
+    for (let b = d; b; b = b.parent) {
+      if (b.name === "location" && (b.args[0] === "~" || b.args[0] === "~*")) return regexGroups(b.args[1] ?? "");
+      if (b.name === "if" && b.args.length >= 3 && /^\(?\$(uri|document_uri)$/.test(b.args[0]) && /^!?~\*?$/.test(b.args[1])) return regexGroups(b.args[2].replace(/\)$/, ""));
+    }
+    return /* @__PURE__ */ new Map();
+  };
+  const varsIn = (text3) => [...text3.matchAll(/\$\{?(\w+)\}?/g)].map((m) => m[1]);
+  const taintIn = (text3, scope) => {
+    const caps = capturesOf(scope);
+    const v = varsIn(text3).find((v2) => v2 === "uri" || v2 === "document_uri" || taintedVars.has(v2) || caps.get(v2));
+    return v && `$${v}`;
+  };
+  const tainted = (d, args) => args.map((a) => taintIn(a, d.parent)).find(Boolean);
+  for (let round = 0; round < 4; round++) {
+    walk(root, (d) => {
+      if (d.name === "set" && d.args[0]?.startsWith("$") && taintIn(d.args[1] ?? "", d.parent)) taintedVars.add(d.args[0].slice(1));
+      if (d.name === "map" && d.block && d.args[1]?.startsWith("$")) {
+        const fromUri = /^\$(uri|document_uri)$/.test(d.args[0] ?? "");
+        for (const e of d.block) {
+          if (!e.args.length) continue;
+          const groups2 = fromUri && e.name.startsWith("~") ? regexGroups(e.name.replace(/^~\*?/, "")) : /* @__PURE__ */ new Map();
+          if (varsIn(e.args[e.args.length - 1]).some((v) => v === "uri" || v === "document_uri" || taintedVars.has(v) || groups2.get(v))) taintedVars.add(d.args[1].slice(1));
+        }
+      }
+    });
   }
   walk(root, (d) => {
     if (d.name === "ssl_protocols") {
@@ -8043,57 +8159,78 @@ function checkNginx(text2) {
     if (d.name === "location" && d.block) {
       const path2 = d.args.length === 1 ? d.args[0] : d.args[0] === "=" || d.args[0] === "^~" ? d.args[1] : void 0;
       const alias = inner(d).find((c2) => c2.name === "alias");
-      if (path2 && !path2.endsWith("/") && alias?.args[0]?.endsWith("/") && d.args[0] !== "=") {
+      const capture = alias && (d.args[0] === "~" || d.args[0] === "~*") ? unsafeAliasCapture(d.args[1] ?? "", alias.args[0] ?? "") : void 0;
+      if (capture) add("NG007", d.line, `\`alias ${alias.args[0]}\` takes \`${capture}\` from a part of the URL that doesn't start after a \`/\`, so a request with \`..\` there reaches the folder above.`);
+      else if (path2 && !path2.endsWith("/") && alias?.args[0]?.endsWith("/") && d.args[0] !== "=") {
         add("NG007", d.line, `\`location ${path2}\` with \`alias ${alias.args[0]}\`: \`${path2}../\` reaches the folder above.`, d.line === openLine(d, lines) ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(path2, `${path2}/`)] }] : void 0);
       }
     }
-    if ((d.name === "return" || d.name === "rewrite" || d.name === "add_header") && d.args.some((a) => /\$uri\b|\$document_uri\b/.test(a))) {
-      add("NG011", d.line, "Puts the decoded `$uri` into a response header.", d.line === d.endLine ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(/\$(document_)?uri\b/g, "$request_uri")] }] : void 0);
+    const sinkArgs = SINKS[d.name]?.(d.args);
+    const bad = sinkArgs && tainted(d, sinkArgs);
+    if (bad) {
+      const direct = /^\$(document_)?uri$/.test(bad);
+      const where = d.name.startsWith("proxy") ? "the request sent upstream" : "a response header";
+      add("NG011", d.line, `Puts \`${bad}\` into ${where}. It is decoded from the URL, so an encoded line break (\`%0d%0a\`) in a request can add headers of its own.`, direct && d.line === d.endLine ? [{ start: d.line, end: d.line + 1, lines: [lines[d.line - 1].replace(/\$(document_)?uri\b(\$is_args\$args|\?\$args)?/g, "$request_uri")] }] : void 0);
     }
   });
+  const inheritMode = (block) => {
+    for (let b = block; b; b = b.parent) {
+      const m = inner(b).find((d) => d.name === "add_header_inherit");
+      if (m) return m.args[0] ?? "on";
+    }
+    return root.find((d) => d.name === "add_header_inherit")?.args[0] ?? "on";
+  };
   const effective = (block) => {
-    if (!block) return [];
-    const own = headers(inner(block));
+    const own = headers(block ? inner(block) : root);
+    if (!block) return own;
+    if (own.length && inheritMode(block) === "merge") return [...own, ...effective(block.parent)];
     return own.length ? own : effective(block.parent);
   };
-  const hasHeader = (list, name) => list.some((h) => h.args[0]?.toLowerCase() === name.toLowerCase());
+  const copyDirective = (d, indent) => {
+    const span = lines.slice(d.line - 1, d.endLine).map((l) => l.trim());
+    const alone = span[0].startsWith(d.name) && /;\s*(#.*)?$/.test(span[span.length - 1]) && span.join(" ").split(";").length === 2 && !/[{}]/.test(span.join(" "));
+    if (alone) return span.map((l, k) => (k ? indent + "    " : indent) + l);
+    const q = (a) => /^[^\s;{}"'#]+$/.test(a) ? a : `"${a.replace(/(["\\])/g, "\\$1")}"`;
+    return [`${indent}${d.name} ${d.args.map(q).join(" ")};`];
+  };
+  const hasHeader = (list, name) => list.some((h) => headerName(h).toLowerCase() === name.toLowerCase());
   for (const s of servers) {
     const kids = inner(s);
     const listens = kids.filter((d) => d.name === "listen");
     const tls = listens.some((l) => l.args.includes("ssl") || l.args.some((a) => /(^|:)443$/.test(a))) || kids.some((d) => d.name === "ssl" && d.args[0] === "on") || kids.some((d) => d.name === "ssl_certificate");
     const sh = effective(s);
     const ind = indentFor(lines, s);
+    const keepInherited = headers(kids).length ? [] : sh.flatMap((h) => copyDirective(h, ind));
     const at = openLine(s, lines);
     const afterName = kids.filter((k) => ["listen", "server_name"].includes(k.name)).reduce((m, k) => Math.max(m, k.endLine), at);
     const returns = kids.some((d) => d.name === "return" || d.name === "rewrite" && d.args.some((a) => /^https:/.test(a)));
     const servesContent = kids.some((d) => d.name === "root" || d.name === "location" || d.name === "proxy_pass");
-    if (tls && !hasHeader(sh, "Strict-Transport-Security")) add("NG005", s.line, "HTTPS server without `Strict-Transport-Security`.", [{ ...insertAfter(afterName, [`${ind}add_header Strict-Transport-Security "max-age=63072000" always;`]), merge: { key: `hdr:${s.line}`, header: [] } }]);
+    if (tls && !hasHeader(sh, "Strict-Transport-Security")) add("NG005", s.line, "HTTPS server without `Strict-Transport-Security`.", [{ ...insertAfter(afterName, [...keepInherited, `${ind}add_header Strict-Transport-Security "max-age=63072000" always;`]), merge: { key: `hdr:${s.line}`, header: [] } }]);
     const shouldRedirect = !tls && listens.some((l) => l.args.some((a) => /(^|:)80$/.test(a))) && !returns && servesContent && servers.some((o) => o !== s && inner(o).some((d) => d.name === "ssl_certificate"));
     if (shouldRedirect) add("NG006", s.line, "This port-80 server serves pages instead of redirecting to HTTPS.");
     const missing = [!hasHeader(sh, "X-Content-Type-Options") && `${ind}add_header X-Content-Type-Options "nosniff" always;`, !hasHeader(sh, "X-Frame-Options") && !sh.some((h) => /frame-ancestors/.test(h.args[1] ?? "")) && `${ind}add_header X-Frame-Options "DENY" always;`].filter(Boolean);
-    if (servesContent && !returns && !shouldRedirect && missing.length) add("NG009", s.line, `Missing ${missing.map((m) => m.trim().split(" ")[1]).join(" and ")}.`, [{ ...insertAfter(afterName, missing), merge: { key: `hdr:${s.line}`, header: [] } }]);
+    if (servesContent && !returns && !shouldRedirect && missing.length) add("NG009", s.line, `Missing ${missing.map((m) => m.trim().split(" ")[1]).join(" and ")}.`, [{ ...insertAfter(afterName, [...keepInherited, ...missing]), merge: { key: `hdr:${s.line}`, header: [] } }]);
     const root2 = kids.find((d) => d.name === "root");
     const guarded = kids.some((d) => d.name === "location" && d.args.some((a) => /\/\\\.|\\\.(git|ht|env)/.test(a)));
     if (root2 && !guarded) {
       const close = s.endLine;
       add("NG010", root2.line, `Files under \`${root2.args[0]}\` are served with nothing blocking \`/.git\` or \`/.env\`.`, [insertAfter(close - 1, ["", `${ind}location ~ /\\.(?!well-known) {`, `${ind}    deny all;`, `${ind}}`])]);
     }
-    walk(kids, (d) => {
-      if (d.name !== "location" || !d.block) return;
-      const own = headers(d.block);
-      const parentHeaders = effective(d.parent);
-      if (!own.length || !parentHeaders.length) return;
-      const lost = parentHeaders.filter((p) => !hasHeader(own, p.args[0]));
-      if (!lost.length) return;
-      const li = indentFor(lines, d);
-      add("NG008", d.line, `This location sets its own headers, so ${lost.map((h) => `\`${h.args[0]}\``).join(", ")} from the server no longer apply here.`, [
-        insertAfter(
-          openLine(d, lines),
-          lost.map((h) => `${li}${lines[h.line - 1].trim()}`)
-        )
-      ]);
-    });
   }
+  walk(root, (d) => {
+    if (d.name !== "location" && d.name !== "if" || !d.block) return;
+    const own = headers(d.block);
+    if (!own.length || inheritMode(d) === "merge") return;
+    const lost = effective(d.parent).filter((p) => !hasHeader(own, headerName(p)));
+    if (!lost.length) return;
+    const li = indentFor(lines, d);
+    add("NG008", d.line, `This ${d.name === "if" ? "`if` block" : "location"} sets its own headers, so ${lost.map((h) => `\`${headerName(h)}\``).join(", ")} from above no longer apply here.`, [
+      insertAfter(
+        openLine(d, lines),
+        lost.flatMap((h) => copyDirective(h, li))
+      )
+    ]);
+  });
   return { findings: out, errors };
 }
 
@@ -8173,7 +8310,7 @@ function checkSshd(text2) {
       if (shadowed.has(l.key)) continue;
       shadowed.add(l.key);
       add("SSH009", f.line, `\`${casing[l.key] ?? l.key} ${f.value}\` wins over \`${l.value}\` on line ${l.line}: sshd uses the first value it reads, so your later line does nothing.`, [deleteLines(f.line)], "high");
-    } else add("SSH009", l.line, `\`${casing[l.key] ?? l.key} ${l.value}\` is ignored: line ${f.line} already set it to \`${f.value}\`, and the first value wins.`, [deleteLines(f.line)], "low");
+    } else add("SSH009", l.line, `\`${casing[l.key] ?? l.key} ${l.value}\` is ignored: line ${f.line} already set it to \`${f.value}\`, and the first value wins.`, [deleteLines(l.line)], "low");
   }
   for (const [key, b] of Object.entries(BAD)) {
     const f = first.get(key);
@@ -8213,16 +8350,19 @@ function checkSshd(text2) {
 var RULES = [...DOCKERFILE_RULES, ...COMPOSE_RULES, ...KUBERNETES_RULES, ...NGINX_RULES, ...SSHD_RULES];
 var RULE = Object.fromEntries(RULES.map((r) => [r.id, r]));
 var KIND_NAME = { dockerfile: "Dockerfile", compose: "Docker Compose", kubernetes: "Kubernetes", nginx: "nginx", sshd: "SSH server" };
+var NOT_CONFIG = /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rs|rb|java|kt|cs|php|sh|bash|ps1|md|mdx|txt|rst|adoc|html?|css|json|toml|lock|snap|orig|rej|bak|swp|tmp|diff|patch|ya?ml|xml|ini|j2|tpl|tmpl)$/;
 function detect(name, text2) {
   const base = name.split(/[\\/]/).pop().toLowerCase();
-  if (/(^|\.)dockerfile$|^dockerfile(\.|-|$)|\.dockerfile$|^containerfile$/.test(base)) return "dockerfile";
+  if (/\.dockerfile$|^(docker|container)file$/.test(base) || /^(docker|container)file[.-]/.test(base) && !NOT_CONFIG.test(base)) return "dockerfile";
+  if (NOT_CONFIG.test(base) && !/\.ya?ml$/.test(base)) return null;
   if (/^(docker-)?compose(\.[\w-]+)?\.ya?ml$/.test(base)) return "compose";
   if (/sshd_config|sshd.*\.conf$/.test(base)) return "sshd";
-  if (/nginx|\.conf$/.test(base) && /\b(server|http|location|upstream)\s*[^;]*\{/.test(text2)) return "nginx";
   if (/\.ya?ml$/.test(base) || /^\s*(apiVersion|services|kind):/m.test(text2)) {
     if (/^apiVersion:/m.test(text2) && /^kind:/m.test(text2)) return "kubernetes";
     if (/^services:/m.test(text2)) return "compose";
+    if (/\.ya?ml$/.test(base)) return null;
   }
+  if (/nginx|\.conf$/.test(base) && /^\s*(server|http|location|upstream|events)\b[^;{\n]*\{/m.test(text2)) return "nginx";
   if (/^\s*FROM\s+\S+/im.test(text2) && /^\s*(RUN|CMD|COPY|ENTRYPOINT)\s/im.test(text2)) return "dockerfile";
   if (/\b(server|http)\s*\{/.test(text2) && /;\s*$/m.test(text2)) return "nginx";
   if (looksLikeSshd(text2)) return "sshd";
@@ -8254,40 +8394,52 @@ function audit(name, text2, forceKind) {
   findings.sort((a, b) => a.line - b.line || SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity]);
   return { name, kind, findings, errors, ...grade(findings) };
 }
-function fix(name, text2, only) {
+function fix(name, text2, only, forceKind) {
   let cur = text2;
   const fixed = [];
-  let report = audit(name, cur);
+  let report = audit(name, cur, forceKind);
+  const kind = report.kind ?? void 0;
   for (let round = 0; round < 3; round++) {
     const todo = report.findings.filter((f) => f.edits?.length && (!only || only.has(f.rule)));
     if (!todo.length) break;
     const r = applyEdits(cur, todo);
     if (r.text === cur) break;
+    const next = audit(name, r.text, kind);
+    if (next.errors.length > report.errors.length) break;
     cur = r.text;
     fixed.push(...r.applied);
-    report = audit(name, cur, report.kind ?? void 0);
-    if (report.errors.length) break;
+    report = next;
   }
   return { text: cur, fixed, report };
 }
 
 // ../core/src/diff.ts
+var MAX_TABLE = 4e6;
 function diffLines(before, after) {
   const a = before.replace(/\r?\n$/, "").split(/\r?\n/);
   const b = after.replace(/\r?\n$/, "").split(/\r?\n/);
-  const n = a.length;
-  const m = b.length;
-  const lcs = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
-  for (let i2 = n - 1; i2 >= 0; i2--) for (let j2 = m - 1; j2 >= 0; j2--) lcs[i2][j2] = a[i2] === b[j2] ? lcs[i2 + 1][j2 + 1] + 1 : Math.max(lcs[i2 + 1][j2], lcs[i2][j2 + 1]);
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf++;
+  const n = a.length - suf;
+  const m = b.length - suf;
   const out = [];
-  let i = 0;
-  let j = 0;
+  for (let k = 0; k < pre; k++) out.push({ kind: "same", text: a[k], a: k + 1, b: k + 1 });
+  const rows = n - pre;
+  const cols = m - pre;
+  const big = (rows + 1) * (cols + 1) > MAX_TABLE;
+  const lcs = big ? [] : Array.from({ length: rows + 1 }, () => new Uint32Array(cols + 1));
+  if (!big) for (let i2 = rows - 1; i2 >= 0; i2--) for (let j2 = cols - 1; j2 >= 0; j2--) lcs[i2][j2] = a[pre + i2] === b[pre + j2] ? lcs[i2 + 1][j2 + 1] + 1 : Math.max(lcs[i2 + 1][j2], lcs[i2][j2 + 1]);
+  const L = (i2, j2) => big ? 0 : lcs[i2 - pre][j2 - pre];
+  let i = pre;
+  let j = pre;
   while (i < n || j < m) {
     if (i < n && j < m && a[i] === b[j]) {
       out.push({ kind: "same", text: a[i], a: i + 1, b: j + 1 });
       i++;
       j++;
-    } else if (i < n && (j >= m || lcs[i + 1][j] >= lcs[i][j + 1])) {
+    } else if (i < n && (j >= m || L(i + 1, j) >= L(i, j + 1))) {
       out.push({ kind: "del", text: a[i], a: i + 1 });
       i++;
     } else {
@@ -8295,20 +8447,21 @@ function diffLines(before, after) {
       j++;
     }
   }
+  for (let k = 0; k < suf; k++) out.push({ kind: "same", text: a[n + k], a: n + k + 1, b: m + k + 1 });
   return out;
 }
 function unifiedDiff(name, before, after) {
   const d = diffLines(before, after);
   const changed = d.flatMap((l, i) => l.kind === "same" ? [] : [i]);
   if (!changed.length) return "";
-  const groups = [];
+  const groups2 = [];
   for (const i of changed) {
-    const g = groups.at(-1);
+    const g = groups2.at(-1);
     if (g && i - g[1] <= 7) g[1] = i;
-    else groups.push([i, i]);
+    else groups2.push([i, i]);
   }
   const out = [`--- a/${name}`, `+++ b/${name}`];
-  for (const [first, last] of groups) {
+  for (const [first, last] of groups2) {
     const slice = d.slice(Math.max(0, first - 3), Math.min(d.length, last + 4));
     const aLen = slice.filter((l) => l.kind !== "add").length;
     const bLen = slice.filter((l) => l.kind !== "del").length;
@@ -8394,7 +8547,9 @@ function collect(p, out) {
       if (!SKIP.has(e.name)) collect(import_node_path.default.join(p, e.name), out);
     } else if (e.isFile()) {
       const f = import_node_path.default.join(p, e.name);
-      if (/(dockerfile|containerfile|\.ya?ml$|\.conf$|sshd_config)/i.test(e.name) && (0, import_node_fs.statSync)(f).size < 1e6) out.push(f);
+      const n = e.name.toLowerCase();
+      const config = /\.ya?ml$|\.conf$|sshd_config/.test(n) || /dockerfile|containerfile/.test(n) && !NOT_CONFIG.test(n);
+      if (config && (0, import_node_fs.statSync)(f).size < 1e6) out.push(f);
     }
   }
 }
@@ -8429,6 +8584,8 @@ function main(argv = process.argv.slice(2)) {
   }
   const failOn = values["fail-on"];
   if (!["low", "medium", "high", "critical", "never"].includes(failOn)) throw new Error(`--fail-on must be low, medium, high, critical or never, not "${failOn}".`);
+  if (!["text", "json", "sarif"].includes(values.format)) throw new Error(`--format must be text, json or sarif, not "${values.format}".`);
+  if (values.fix && values.diff) throw new Error("Use --fix or --diff, not both.");
   const files = [];
   for (const p of positionals.length ? positionals : ["."]) collect(p, files);
   const reports = [];
@@ -8450,11 +8607,7 @@ function main(argv = process.argv.slice(2)) {
     }
     reports.push(r);
   }
-  if (values.diff) {
-    process.stdout.write(patches.join(""));
-    return 0;
-  }
-  const out = values.format === "json" ? JSON.stringify(reports.map(({ name, kind, grade: grade2, score, errors, findings }) => ({ name, kind, grade: grade2, score, errors, findings: findings.map(({ edits, ...f }) => ({ ...f, title: RULE[f.rule].title, fixable: !!edits?.length })) })), null, 2) + "\n" : values.format === "sarif" ? JSON.stringify(toSarif(reports), null, 2) + "\n" : text(reports);
+  const out = values.diff ? patches.join("") : values.format === "json" ? JSON.stringify(reports.map(({ name, kind, grade: grade2, score, errors, findings }) => ({ name, kind, grade: grade2, score, errors, findings: findings.map(({ edits, ...f }) => ({ ...f, title: RULE[f.rule].title, fixable: !!edits?.length })) })), null, 2) + "\n" : values.format === "sarif" ? JSON.stringify(toSarif(reports), null, 2) + "\n" : text(reports);
   if (values.output) (0, import_node_fs.writeFileSync)(values.output, out);
   else process.stdout.write(out);
   if (failOn === "never") return 0;

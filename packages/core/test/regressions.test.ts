@@ -109,3 +109,58 @@ describe("diff", () => {
     expect(d).toContain("+USER node");
   });
 });
+
+describe("fixes that used to break configs", () => {
+  it("sshd: removes the ignored duplicate, not the setting in force", async () => {
+    const { fix } = await import("../src");
+    const r = fix("sshd_config", "PasswordAuthentication no\nKbdInteractiveAuthentication no\nAllowTcpForwarding no\nAllowTcpForwarding yes\n");
+    expect(r.text).toContain("AllowTcpForwarding no");
+    expect(r.text).not.toContain("AllowTcpForwarding yes");
+  });
+
+  it("nginx: a header added to a server keeps the ones it inherited from http", async () => {
+    const { fix } = await import("../src");
+    const text = 'http {\n    server_tokens off;\n    add_header Content-Security-Policy "default-src \'self\'" always;\n    add_header X-Frame-Options DENY always;\n    add_header X-Content-Type-Options nosniff always;\n    server {\n        listen 443 ssl;\n        ssl_certificate /c.pem;\n        root /srv;\n        location ~ /\\. {\n            deny all;\n        }\n    }\n}\n';
+    const r = fix("nginx.conf", text);
+    const server = r.text.slice(r.text.indexOf("server {"));
+    expect(server).toContain("Content-Security-Policy");
+    expect(server).toContain("Strict-Transport-Security");
+  });
+
+  it("nginx: copies a header written over two lines in full", async () => {
+    const { fix, audit } = await import("../src");
+    const text = "server {\n    server_tokens off;\n    root /srv;\n    add_header X-Frame-Options DENY;\n    add_header X-Content-Type-Options nosniff;\n    add_header Content-Security-Policy\n        \"default-src 'self'\" always;\n    location ~ /\\. {\n        deny all;\n    }\n    location /api/ {\n        add_header X-Api 1;\n    }\n}\n";
+    const r = fix("nginx.conf", text);
+    expect(r.report.errors).toEqual([]);
+    expect(audit("nginx.conf", r.text).findings.map((f) => f.rule)).not.toContain("NG008");
+  });
+
+  it("nginx: a # inside a word is not a comment", () => {
+    const r = audit("nginx.conf", "http {\n  server {\n    location /a {\n      return 301 https://example.com/#top;\n    }\n  }\n}\n");
+    expect(r.errors).toEqual([]);
+  });
+
+  it("nginx: $uri$is_args$args becomes $request_uri once", async () => {
+    const { fix } = await import("../src");
+    expect(fix("site.conf", "return 301 https://$host$uri$is_args$args;\n", new Set(["NG011"]), "nginx").text).toBe("return 301 https://$host$request_uri;\n");
+  });
+
+  it("kubernetes: leaves a flow-style securityContext alone instead of overwriting it", async () => {
+    const { fix } = await import("../src");
+    const text = "apiVersion: v1\nkind: Pod\nmetadata:\n  name: p\nspec:\n  containers:\n    - name: a\n      image: x:1\n      securityContext: {privileged: true, runAsNonRoot: true, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}\n";
+    const r = fix("p.yaml", text, new Set(["K8S001"]));
+    expect(r.text).toBe(text);
+  });
+
+  it("compose: removing seccomp:unconfined keeps no-new-privileges and leaves no empty key", async () => {
+    const { fix } = await import("../src");
+    const flow = 'services:\n  a:\n    image: x:1\n    security_opt: ["no-new-privileges:true", "seccomp:unconfined"]\n';
+    expect(fix("compose.yaml", flow, new Set(["DC007"])).text).toBe(flow);
+    const block = "services:\n  a:\n    image: x:1\n    security_opt:\n      - seccomp:unconfined\n      - apparmor:unconfined\n";
+    expect(fix("compose.yaml", block, new Set(["DC007"])).text).toBe("services:\n  a:\n    image: x:1\n");
+  });
+
+  it("compose: an IPv6 loopback port is not open to the internet", () => {
+    expect(rules("compose.yaml", 'services:\n  r:\n    image: redis:7\n    ports: ["[::1]:6379:6379"]\n')).not.toContain("DC004");
+  });
+});

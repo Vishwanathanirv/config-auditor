@@ -89,7 +89,7 @@ export function checkSshd(text: string): Finding[] {
       if (shadowed.has(l.key)) continue;
       shadowed.add(l.key);
       add("SSH009", f.line, `\`${casing[l.key] ?? l.key} ${f.value}\` wins over \`${l.value}\` on line ${l.line}: sshd uses the first value it reads, so your later line does nothing.`, [deleteLines(f.line)], "high");
-    } else add("SSH009", l.line, `\`${casing[l.key] ?? l.key} ${l.value}\` is ignored: line ${f.line} already set it to \`${f.value}\`, and the first value wins.`, [deleteLines(f.line)], "low");
+    } else add("SSH009", l.line, `\`${casing[l.key] ?? l.key} ${l.value}\` is ignored: line ${f.line} already set it to \`${f.value}\`, and the first value wins.`, [deleteLines(l.line)], "low");
   }
 
   for (const [key, b] of Object.entries(BAD)) {

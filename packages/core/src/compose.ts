@@ -77,7 +77,10 @@ export function checkCompose(y: Yaml): Finding[] {
           let published: number | undefined;
           let target: number | undefined;
           if (isScalar(item)) {
-            const parts = String(item.value).replace(/\/(tcp|udp)$/, "").split(":");
+            const raw = String(item.value).replace(/\/(tcp|udp)$/, "");
+            // An IPv6 host is written in brackets: "[::1]:6379:6379".
+            const v6 = raw.match(/^\[([^\]]*)\]:(.*)$/);
+            const parts = v6 ? [v6[1], ...v6[2].split(":")] : raw.split(":");
             target = +parts[parts.length - 1];
             if (parts.length === 3) {
               host = parts[0];
@@ -111,7 +114,14 @@ export function checkCompose(y: Yaml): Finding[] {
       if (isSeq(caps)) for (const c of caps.items) if (isScalar(c) && DANGEROUS_CAPS.test(String(c.value).replace(/^CAP_/, ""))) add("DC006", y.line(c as Node), `\`${name}\` adds \`${c.value}\`.`);
 
       const sec = get(s, "security_opt");
-      if (isSeq(sec)) for (const o of sec.items) if (isScalar(o) && /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(o.value))) add("DC007", y.line(o as Node), `\`${name}\` turns off \`${String(o.value).split(/[:=]/)[0]}\`.`, sec.items.length === 1 ? [deleteLines(y.line(p("security_opt")), y.line(o as Node))] : [deleteLines(y.line(o as Node))]);
+      if (isSeq(sec)) for (const o of sec.items) if (isScalar(o) && /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(o.value))) {
+        // Removing the item restores Docker's default profile. A flow list (`[a, b]`) shares its
+        // line with other options, so it is left for a person; if every item goes, the key goes too.
+        const unsafe = (v: unknown) => /(seccomp|apparmor)[:=]unconfined|label[:=]disable/.test(String(v));
+        const allBad = sec.items.every((x) => isScalar(x) && unsafe(x.value));
+        const edits = sec.flow ? undefined : allBad ? [deleteLines(y.line(p("security_opt")), y.line(sec.items[sec.items.length - 1] as Node))] : [deleteLines(y.line(o as Node))];
+        add("DC007", y.line(o as Node), `\`${name}\` turns off \`${String(o.value).split(/[:=]/)[0]}\`.`, edits);
+      }
 
       const image = scalar(get(s, "image"));
       if (typeof image === "string" && !get(s, "build") && !image.includes("@sha256:") && !image.includes("${")) {

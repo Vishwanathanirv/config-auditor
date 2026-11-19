@@ -62,6 +62,10 @@ export class Yaml {
   setValue(pair: Pair, value: string): Edit | undefined {
     const l = this.line(pair);
     const text = this.lines[l - 1];
+    // Only when the key starts its line; inside a flow map (`{a: 1, b: 2}`) the line holds others.
+    const key = String(isScalar(pair.key) ? pair.key.value : "");
+    if (!key || !new RegExp(`^\\s*(-\\s+)?["']?${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}["']?\\s*:`).test(text)) return undefined;
+    if (isMap(pair.value) || isSeq(pair.value)) return undefined;
     const m = text.match(/^(\s*(?:-\s+)?[^:#]+:\s*)(.*?)(\s+#.*)?$/);
     if (!m) return undefined;
     return { start: l, end: l + 1, lines: [`${m[1]}${value}${m[3] ?? ""}`] };

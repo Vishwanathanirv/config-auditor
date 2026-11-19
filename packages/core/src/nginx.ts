@@ -66,7 +66,8 @@ export function parseNginx(text: string): { root: Directive[]; errors: string[] 
       i = j + 1;
     } else {
       let j = i;
-      while (j < text.length && !/[\s;{}"'#]/.test(text[j])) j++;
+      // `#` only starts a comment at the start of a word: `https://x/#top` is one word.
+      while (j < text.length && !/[\s;{}"']/.test(text[j])) j++;
       // `$` followed by `{` is a variable, not a block.
       if (text[j] === "{" && text[j - 1] === "$") {
         const k = text.indexOf("}", j);
@@ -291,6 +292,14 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
     if (own.length && inheritMode(block) === "merge") return [...own, ...effective(block.parent)];
     return own.length ? own : effective(block.parent);
   };
+  /** A directive's full text (it may span lines), re-indented for another block. */
+  const copyDirective = (d: Directive, indent: string) => {
+    const span = lines.slice(d.line - 1, d.endLine).map((l) => l.trim());
+    const alone = span[0].startsWith(d.name) && /;\s*(#.*)?$/.test(span[span.length - 1]) && span.join(" ").split(";").length === 2 && !/[{}]/.test(span.join(" "));
+    if (alone) return span.map((l, k) => (k ? indent + "    " : indent) + l);
+    const q = (a: string) => (/^[^\s;{}"'#]+$/.test(a) ? a : `"${a.replace(/(["\\])/g, "\\$1")}"`);
+    return [`${indent}${d.name} ${d.args.map(q).join(" ")};`];
+  };
   const hasHeader = (list: Directive[], name: string) => list.some((h) => headerName(h).toLowerCase() === name.toLowerCase());
 
   for (const s of servers) {
@@ -299,16 +308,19 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
     const tls = listens.some((l) => l.args.includes("ssl") || l.args.some((a) => /(^|:)443$/.test(a))) || kids.some((d) => d.name === "ssl" && d.args[0] === "on") || kids.some((d) => d.name === "ssl_certificate");
     const sh = effective(s);
     const ind = indentFor(lines, s);
+    // A server with no add_header of its own inherits http's. Adding one would drop those, so
+    // any header the fixes add to the server brings copies of the inherited ones with it.
+    const keepInherited = headers(kids).length ? [] : sh.flatMap((h) => copyDirective(h, ind));
     const at = openLine(s, lines);
     const afterName = kids.filter((k) => ["listen", "server_name"].includes(k.name)).reduce((m, k) => Math.max(m, k.endLine), at);
     const returns = kids.some((d) => d.name === "return" || (d.name === "rewrite" && d.args.some((a) => /^https:/.test(a))));
     const servesContent = kids.some((d) => d.name === "root" || d.name === "location" || d.name === "proxy_pass");
 
-    if (tls && !hasHeader(sh, "Strict-Transport-Security")) add("NG005", s.line, "HTTPS server without `Strict-Transport-Security`.", [{ ...insertAfter(afterName, [`${ind}add_header Strict-Transport-Security "max-age=63072000" always;`]), merge: { key: `hdr:${s.line}`, header: [] } }]);
+    if (tls && !hasHeader(sh, "Strict-Transport-Security")) add("NG005", s.line, "HTTPS server without `Strict-Transport-Security`.", [{ ...insertAfter(afterName, [...keepInherited, `${ind}add_header Strict-Transport-Security "max-age=63072000" always;`]), merge: { key: `hdr:${s.line}`, header: [] } }]);
     const shouldRedirect = !tls && listens.some((l) => l.args.some((a) => /(^|:)80$/.test(a))) && !returns && servesContent && servers.some((o) => o !== s && inner(o).some((d) => d.name === "ssl_certificate"));
     if (shouldRedirect) add("NG006", s.line, "This port-80 server serves pages instead of redirecting to HTTPS.");
     const missing = [!hasHeader(sh, "X-Content-Type-Options") && `${ind}add_header X-Content-Type-Options "nosniff" always;`, !hasHeader(sh, "X-Frame-Options") && !sh.some((h) => /frame-ancestors/.test(h.args[1] ?? "")) && `${ind}add_header X-Frame-Options "DENY" always;`].filter(Boolean) as string[];
-    if (servesContent && !returns && !shouldRedirect && missing.length) add("NG009", s.line, `Missing ${missing.map((m) => m.trim().split(" ")[1]).join(" and ")}.`, [{ ...insertAfter(afterName, missing), merge: { key: `hdr:${s.line}`, header: [] } }]);
+    if (servesContent && !returns && !shouldRedirect && missing.length) add("NG009", s.line, `Missing ${missing.map((m) => m.trim().split(" ")[1]).join(" and ")}.`, [{ ...insertAfter(afterName, [...keepInherited, ...missing]), merge: { key: `hdr:${s.line}`, header: [] } }]);
 
     const root = kids.find((d) => d.name === "root");
     const guarded = kids.some((d) => d.name === "location" && d.args.some((a) => /\/\\\.|\\\.(git|ht|env)/.test(a)));
@@ -330,7 +342,7 @@ export function checkNginx(text: string): { findings: Finding[]; errors: string[
     add("NG008", d.line, `This ${d.name === "if" ? "`if` block" : "location"} sets its own headers, so ${lost.map((h) => `\`${headerName(h)}\``).join(", ")} from above no longer apply here.`, [
       insertAfter(
         openLine(d, lines),
-        lost.map((h) => `${li}${lines[h.line - 1].trim()}`),
+        lost.flatMap((h) => copyDirective(h, li)),
       ),
     ]);
   });

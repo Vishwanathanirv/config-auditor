@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-15T06:32:46.846Z",
+ "generatedAt": "2026-11-19T20:03:30.419Z",
  "rules": 60,
  "autofixRules": 37,
  "fixtures": 25,
@@ -19,7 +19,7 @@
   "inputs": 30,
   "validAfter": 30
  },
- "perFileMs": 0.33,
+ "perFileMs": 0.36,
  "perRule": {
   "DF001": {
    "tp": 1,
