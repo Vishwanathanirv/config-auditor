@@ -23,6 +23,8 @@ jobs:
       - run: npm run build
       - name: The committed action bundle matches the source
         run: git diff --exit-code action/
+      - name: Benchmark results match the rules (npm run bench)
+        run: npm run bench > /dev/null && git diff --exit-code bench/results.json
       - name: Redline checks this repository's own Dockerfile
         run: node action/redline.cjs Dockerfile --fail-on low
       - name: End-to-end tests on the demo build
