@@ -5,10 +5,10 @@ const editor = (page: import("@playwright/test").Page, name = "Dockerfile") => p
 test("the example Dockerfile opens with squiggles, and a lightbulb fix can be undone", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("tab", { name: /Dockerfile/, selected: true })).toBeVisible();
-  await expect(page.getByText(/Grade F/)).toBeVisible();
+  await expect(page.getByRole("img", { name: /Grade F/ })).toBeVisible();
   await expect(page.getByText("Container runs as root").first()).toBeVisible();
 
-  await page.getByRole("button", { name: "Quick fixes for line 19" }).click();
+  await page.getByRole("button", { name: /^Corrections for line 19/ }).click();
   await page.getByRole("menuitem", { name: /Fix: CMD in shell form/ }).click();
   await expect(editor(page)).toHaveValue(/CMD \["npm", "start"\]/);
   await page.getByRole("button", { name: "Undo" }).click();
@@ -40,11 +40,11 @@ test("a new file is checked as you type and kept after a reload", async ({ page 
   await expect(page.getByLabel("Contents of sshd_config")).toHaveCount(0);
 });
 
-test("the rulebook and the test bench open as tabs", async ({ page }) => {
+test("the manual and the lab report open on the desk", async ({ page }) => {
   await page.goto("/rules");
   await page.getByPlaceholder("Search the rules").fill("off-by-slash");
   await expect(page.getByText("alias path traversal (off-by-slash)")).toBeVisible();
-  await page.getByRole("button", { name: "Test bench" }).click();
+  await page.getByRole("button", { name: "Lab report" }).click();
   await expect(page.getByText("false alarms on hardened configs")).toBeVisible();
   await expect(page.getByText("Mozilla modern OpenSSH")).toBeVisible();
 });
