@@ -1,13 +1,13 @@
-# Redline · A code editor that finds security mistakes in config files
+# Redline · An inspector with a red pen for your config files
 
 
-Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) in an editor that works like VS Code. Mistakes get a wavy red underline as you type, with a short note at the end of the line, and each problem has a plain-English explanation: what is wrong on that line, why it matters, and how to fix it. For 37 of the 60 rules Redline writes the fix too, and a lightbulb next to the line applies it, so you get a corrected file or a patch you can apply with `git apply`.
+Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) the way an inspector marks up a printed page. Each file is a typed sheet. Every problem gets a circled number in the margin, an underline in red pen (critical and high), orange pencil (medium) or blue pencil (low), and a handwritten note beside the line. The notes are numbered like footnotes and say in plain English what is wrong on that line, why it matters, and how to fix it. The grade is stamped at the top. It all updates as you type. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
 
 **Live demo: [redline-config-auditor.vercel.app](https://redline-config-auditor.vercel.app)**
 
 It runs in the browser (nothing is uploaded), on the command line, as a GitHub Action that puts findings on pull requests, and as an API.
 
-![The editor with squiggles on a Dockerfile](docs/screenshots/editor.png)
+![A Dockerfile marked up by Redline: circled numbers, red-pen underlines, margin notes and a stamped grade](docs/screenshots/editor.png)
 
 ## Why
 
@@ -21,21 +21,23 @@ Some of the checks catch traps that experienced people still fall into:
 - **nginx `add_header` inheritance:** one `add_header` in a location silently drops every security header set on the server.
 - **Docker bypasses ufw:** `"5432:5432"` in compose opens the database to the internet even with a firewall on. Redline rewrites it to `127.0.0.1:5432:5432`.
 
-![Quick fixes from the lightbulb](docs/screenshots/quick-fix.png)
+![The index card for one line, with its fix](docs/screenshots/quick-fix.png)
 
 ## Fixing
 
 Three ways, all with undo:
 
-- Click the **lightbulb** next to a line to fix that problem (Ctrl . fixes everything that can be fixed).
-- Open **Fix preview** in the bottom panel, untick the fixes you don't want, and see the change as a diff: green lines are written in, struck lines are taken out. Apply it, download the fixed file, or copy it as a patch.
+- Click a **circled number** in the margin to open that line's index card, then fix the problem from there. **Fix all**, next to the stamp, fixes everything that can be fixed (or press Ctrl .).
+- Open **Fix preview** to see the fixes as proofreading marks: lines marked `dele` are struck out, lines marked `‸` are written in. Untick the fixes you don't want. Apply it, download the fixed file, or copy it as a patch.
 - Or just edit the file: it is checked again on every key press.
 
-The Problems panel lists everything in the file or the whole project; click one to jump to its line and read why it matters. Your files and edits stay in your browser. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
+The **inspector's notes** under the sheet list everything on this sheet or on every sheet; click one to jump to its line and read why it matters. On a phone the margin notes become these footnotes. Your files and edits stay in your browser. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
 
 ![Fix preview](docs/screenshots/fix-preview.png)
 
-![Dark theme](docs/screenshots/dark.png)
+![With the lamp turned down (dark theme)](docs/screenshots/dark.png)
+
+![On a phone](docs/screenshots/mobile.png)
 
 ## Results
 
@@ -51,7 +53,7 @@ From `npm run evaluate` (the same files run as unit tests on every push):
 
 **What this does and doesn't prove.** The 25 test files were written by hand and labelled with the problems they contain. Every rule is covered, but it is a small set: real configs with unusual layouts can still trip a rule or slip past one. The rules are pattern-based and don't know your context (a monitoring agent may really need host access), which is why each automatic fix can be unticked.
 
-![Test bench](docs/screenshots/bench.png)
+![The lab report](docs/screenshots/bench.png)
 
 ### On other projects' test files
 
