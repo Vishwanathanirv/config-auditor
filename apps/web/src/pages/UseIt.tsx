@@ -52,10 +52,10 @@ function Step({ title, children, code }: { title: string; children: ReactNode; c
   return (
     <section className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
       <div>
-        <h2 className="text-lg font-bold">{title}</h2>
+        <h2 className="typed text-[13px] font-bold uppercase tracking-[0.14em]">{title}</h2>
         <div className="mt-1 text-[14.5px] leading-relaxed text-muted">{children}</div>
       </div>
-      <pre className="code overflow-x-auto rounded-[10px] border border-line bg-panel px-4 py-3 text-[12.5px]">{code}</pre>
+      <pre tabIndex={0} aria-label={`${title}: example`} className="code margin-rule overflow-x-auto border-y border-dashed border-line bg-panel px-4 py-3 text-[13px]">{code}</pre>
     </section>
   );
 }
@@ -63,8 +63,9 @@ function Step({ title, children, code }: { title: string; children: ReactNode; c
 export function UseIt() {
   return (
     <div className="max-w-6xl">
-      <h1 className="text-[1.7rem] font-semibold leading-tight tracking-[-0.02em]">Put it where configs change</h1>
-      <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks in this editor are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
+      <div className="typed text-[11px] uppercase tracking-[0.18em] text-muted">Paperwork</div>
+      <h1 className="mt-1 text-[1.8rem] font-bold leading-tight">Put it where configs change</h1>
+      <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks on this desk are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
       <div className="mt-8 space-y-10">
         <Step title="On every pull request" code={ACTION}>
           The GitHub Action checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">fail-on</code> to adjust.

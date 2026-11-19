@@ -26,29 +26,30 @@ export function Rulebook() {
   const shown = RULES.filter((r) => (kind === "all" || r.kind === kind) && (!q || `${r.id} ${r.title} ${r.why}`.toLowerCase().includes(q.toLowerCase())));
   return (
     <div className="max-w-4xl">
-      <h1 className="text-[1.7rem] font-semibold leading-tight tracking-[-0.02em]">The rulebook</h1>
+      <div className="typed text-[11px] uppercase tracking-[0.18em] text-muted">Inspector's manual</div>
+      <h1 className="mt-1 text-[1.8rem] font-bold leading-tight">The rulebook</h1>
       <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">
         Every check Redline makes, in plain English: what it looks for, why it matters, and what to do. {RULES.filter((r) => r.autofix).length} of the {RULES.length} come with a fix Redline can write for you. Each one points to the guide it comes from.
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-2">
         {(["all", ...KINDS] as const).map((k) => (
-          <button key={k} onClick={() => setKind(k)} aria-pressed={kind === k} className={`rounded-[6px] px-3 py-1 text-sm font-semibold ${kind === k ? "bg-editor text-ink shadow-[var(--shadow)]" : "text-muted hover:text-ink"}`}>
+          <button key={k} onClick={() => setKind(k)} aria-pressed={kind === k} className={`typed rounded-[50%] px-3 py-1 text-[13px] ${kind === k ? "font-bold text-ink outline outline-[1.6px] outline-[var(--accent)]" : "text-muted hover:text-ink"}`}>
             {k === "all" ? "Everything" : KIND_NAME[k]}
           </button>
         ))}
         <input className="field ml-auto w-full max-w-[16rem] py-1 text-sm" placeholder="Search the rules" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the rules" />
       </div>
-      <ol className="mt-5 divide-y divide-line overflow-hidden rounded-[10px] border border-line bg-panel">
+      <ol className="mt-5 divide-y divide-line border-y-2 border-[var(--ink)]">
         {shown.map((r) => (
           <li key={r.id}>
-            <details className="group px-3 py-3">
+            <details className="group px-1 py-2.5 open:bg-[var(--sel)]">
               <summary className="flex cursor-pointer list-none items-baseline gap-3">
                 <span className="w-16 shrink-0 font-mono text-[13px] text-faint">{r.id}</span>
                 <span className="flex-1 font-semibold">{r.title}</span>
                 <span className="font-mono text-[12px]" style={{ color: SEV_TONE[r.severity] }}>
                   {r.severity}
                 </span>
-                {r.autofix && <span className="hidden rounded bg-panel-2 px-1.5 font-mono text-[11px] text-ok sm:inline">fixable</span>}
+                {r.autofix && <span className="hand hidden text-[17px] leading-none text-ok sm:inline">fixable</span>}
               </summary>
               <div className="mt-2 space-y-2 pl-0 text-[14.5px] leading-relaxed sm:pl-[4.75rem]">
                 <p>

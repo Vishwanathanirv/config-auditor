@@ -594,7 +594,8 @@ export function Workbench() {
         </header>
 
         {/* Folder tabs: one per sheet on the desk. */}
-        <div className="flex items-end gap-1 overflow-x-auto px-1 pt-1" role="tablist" aria-label="Sheets on the desk">
+        <div className="flex items-end gap-1 overflow-x-auto px-1 pt-1">
+          <div className="flex items-end gap-1" role="tablist" aria-label="Sheets on the desk">
           {reports.map(({ f, r }) => {
             const on = !view && f.id === activeId;
             return (
@@ -609,6 +610,7 @@ export function Workbench() {
               </button>
             );
           })}
+          </div>
           {newName !== null ? (
             <form
               className="folder flex shrink-0 items-center px-2 pb-1 pt-1.5"
@@ -696,7 +698,7 @@ export function Workbench() {
                     )
                   )}
                 </div>
-                <div className="ml-auto flex items-center gap-5">
+                <div className="ml-auto flex items-center gap-5 pr-2">
                   {fixable > 0 && (
                     <button className="hand text-[21px] leading-none text-[var(--accent)] underline decoration-wavy decoration-1 underline-offset-4 hover:decoration-2" onClick={() => apply(fixableRules(report), "every problem with a fix")} title="Ctrl .">
                       fix all {fixable} →

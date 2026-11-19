@@ -107,4 +107,10 @@ writeFileSync(
   join(ROOT, "results.json"),
   JSON.stringify({ test: tally(test), all: tally(results), cases: results.map(({ file, set, expect, rules, fired, ok }) => ({ file, set, expect, rules, fired, ok })) }, null, 1) + "\n",
 );
+// The web app's lab report shows the same numbers; no timings, so the file only changes with the rules.
+const baseline = JSON.parse(readFileSync(join(ROOT, "baseline.json"), "utf8")) as { test: ReturnType<typeof tally> };
+writeFileSync(
+  join(import.meta.dirname, "..", "apps", "web", "public", "benchmark.json"),
+  JSON.stringify({ sources: { kics: manifest.kics.ref, gixy: `${manifest.gixy.name} ${manifest.gixy.version}` }, files: results.length, testFiles: test.length, test: tally(test), all: tally(results), baselineTest: baseline.test }, null, 1) + "\n",
+);
 console.log(md);

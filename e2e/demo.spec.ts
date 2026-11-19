@@ -45,6 +45,53 @@ test("the manual and the lab report open on the desk", async ({ page }) => {
   await page.getByPlaceholder("Search the rules").fill("off-by-slash");
   await expect(page.getByText("alias path traversal (off-by-slash)")).toBeVisible();
   await page.getByRole("button", { name: "Lab report" }).click();
-  await expect(page.getByText("false alarms on hardened configs")).toBeVisible();
+  await expect(page.getByText("0 false alarms on hardened configs")).toBeVisible();
+  await expect(page.getByRole("table", { name: /held-out files/ })).toBeVisible();
   await expect(page.getByText("Mozilla modern OpenSSH")).toBeVisible();
 });
+
+test("a note opens with why it matters, and Fix it corrects the sheet", async ({ page }) => {
+  await page.goto("/?file=sample:Dockerfile");
+  const notes = page.getByRole("region", { name: "Inspector's notes" });
+  await notes.getByRole("button", { name: /Container runs as root/ }).click();
+  await expect(notes.getByText("Why it matters")).toBeVisible();
+  await notes.getByRole("button", { name: "Fix it" }).click();
+  await expect(editor(page)).toHaveValue(/USER node/);
+  await expect(page.getByRole("status")).toContainText("Fixed Container runs as root");
+});
+
+test("fix all is one keystroke and the stamp changes", async ({ page }) => {
+  await page.goto("/?file=sample:Dockerfile");
+  await expect(page.getByRole("img", { name: /Grade F \(7\/100\)/ })).toBeVisible();
+  await editor(page).focus();
+  await page.keyboard.press("Control+.");
+  await expect(page.getByRole("img", { name: /Grade F/ })).not.toHaveAccessibleName(/7\/100/);
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByRole("img", { name: /Grade F \(7\/100\)/ })).toBeVisible();
+});
+
+test("on a phone the sheet fits the screen and the notes are footnotes", async ({ browser }) => {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await expect(page.getByRole("complementary", { name: "Margin notes" })).toBeHidden();
+  await expect(page.getByRole("region", { name: "Inspector's notes" }).getByText("Secret baked into the image").first()).toBeVisible();
+  await page.close();
+});
+
+for (const scheme of ["light", "dark"] as const) {
+  test.describe(`${scheme} lamp`, () => {
+    test.use({ colorScheme: scheme });
+    for (const path of ["/", "/?file=sample:nginx/shop.conf", "/rules", "/bench", "/use"]) {
+      test(`no accessibility violations on ${path}`, async ({ page }) => {
+        const { default: AxeBuilder } = await import("@axe-core/playwright");
+        await page.goto(path);
+        await page.waitForLoadState("networkidle");
+        await page.evaluate(() => document.fonts.ready);
+        const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+        expect(r.violations.map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+      });
+    }
+  });
+}

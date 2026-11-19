@@ -1,0 +1,146 @@
+{
+ "sources": {
+  "kics": "v2.1.21",
+  "gixy": "gixy-ng 0.2.63"
+ },
+ "files": 190,
+ "testFiles": 79,
+ "test": {
+  "by": {
+   "dockerfile": {
+    "tp": 5,
+    "fn": 1,
+    "fp": 0,
+    "tn": 5,
+    "errors": 0
+   },
+   "compose": {
+    "tp": 6,
+    "fn": 0,
+    "fp": 0,
+    "tn": 3,
+    "errors": 0
+   },
+   "kubernetes": {
+    "tp": 14,
+    "fn": 0,
+    "fp": 0,
+    "tn": 11,
+    "errors": 0
+   },
+   "nginx": {
+    "tp": 15,
+    "fn": 3,
+    "fp": 2,
+    "tn": 14,
+    "errors": 0
+   },
+   "sshd": {
+    "tp": 0,
+    "fn": 0,
+    "fp": 0,
+    "tn": 0,
+    "errors": 0
+   }
+  },
+  "all": {
+   "tp": 40,
+   "fn": 4,
+   "fp": 2,
+   "tn": 33,
+   "errors": 0
+  }
+ },
+ "all": {
+  "by": {
+   "dockerfile": {
+    "tp": 14,
+    "fn": 1,
+    "fp": 4,
+    "tn": 13,
+    "errors": 0
+   },
+   "compose": {
+    "tp": 11,
+    "fn": 0,
+    "fp": 0,
+    "tn": 10,
+    "errors": 0
+   },
+   "kubernetes": {
+    "tp": 29,
+    "fn": 0,
+    "fp": 2,
+    "tn": 22,
+    "errors": 0
+   },
+   "nginx": {
+    "tp": 39,
+    "fn": 9,
+    "fp": 2,
+    "tn": 34,
+    "errors": 0
+   },
+   "sshd": {
+    "tp": 0,
+    "fn": 0,
+    "fp": 0,
+    "tn": 0,
+    "errors": 0
+   }
+  },
+  "all": {
+   "tp": 93,
+   "fn": 10,
+   "fp": 8,
+   "tn": 79,
+   "errors": 0
+  }
+ },
+ "baselineTest": {
+  "by": {
+   "dockerfile": {
+    "tp": 5,
+    "fn": 1,
+    "fp": 0,
+    "tn": 5,
+    "errors": 0
+   },
+   "compose": {
+    "tp": 6,
+    "fn": 0,
+    "fp": 0,
+    "tn": 3,
+    "errors": 0
+   },
+   "kubernetes": {
+    "tp": 12,
+    "fn": 2,
+    "fp": 0,
+    "tn": 11,
+    "errors": 0
+   },
+   "nginx": {
+    "tp": 4,
+    "fn": 14,
+    "fp": 2,
+    "tn": 14,
+    "errors": 0
+   },
+   "sshd": {
+    "tp": 0,
+    "fn": 0,
+    "fp": 0,
+    "tn": 0,
+    "errors": 0
+   }
+  },
+  "all": {
+   "tp": 27,
+   "fn": 17,
+   "fp": 2,
+   "tn": 33,
+   "errors": 0
+  }
+ }
+}
