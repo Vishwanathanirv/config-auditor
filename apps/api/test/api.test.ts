@@ -44,4 +44,12 @@ describe("API", () => {
     expect(rules.length).toBeGreaterThan(50);
     expect(rules.every((r: { why: string; fix: string }) => r.why && r.fix)).toBe(true);
   });
+
+  it("uses the kind the caller passes when fixing", async () => {
+    const app = await buildApp();
+    const r = await app.inject({ method: "POST", url: "/api/fix", payload: { name: "custom", kind: "sshd", text: "X11Forwarding yes\nGatewayPorts yes\n" } });
+    expect(r.statusCode).toBe(200);
+    expect(r.json().fixed.length).toBeGreaterThan(0);
+    expect(r.json().after.kind).toBe("sshd");
+  });
 });

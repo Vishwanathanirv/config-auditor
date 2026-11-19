@@ -40,7 +40,7 @@ export async function buildApp(opts: { logger?: boolean; webDir?: string } = {})
     const { name, text, rules } = body.data;
     const before = audit(name, text, body.data.kind as Kind | undefined);
     if (!before.kind) return reply.code(422).send({ error: `Couldn't tell what kind of file "${name}" is. Pass "kind".` });
-    const r = fix(name, text, rules ? new Set(rules) : undefined);
+    const r = fix(name, text, rules ? new Set(rules) : undefined, before.kind);
     return { text: r.text, patch: unifiedDiff(name, text, r.text), fixed: r.fixed, before: strip(before), after: strip(r.report) };
   });
 

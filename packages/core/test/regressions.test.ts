@@ -54,3 +54,58 @@ describe("nginx", () => {
     expect(ng("return 200 $uri;\n")).toEqual([]);
   });
 });
+
+describe("file detection", () => {
+  it("does not treat source code or docs named after Dockerfiles as Dockerfiles", async () => {
+    const { detect } = await import("../src");
+    expect(detect("packages/core/src/dockerfile.ts", 'add("DF002")\nFROM x\nRUN y\n')).toBeNull();
+    expect(detect("dockerfile-notes.md", "FROM node\nRUN npm i\n")).toBeNull();
+    expect(detect("Dockerfile", "")).toBe("dockerfile");
+    expect(detect("Dockerfile.prod", "")).toBe("dockerfile");
+    expect(detect("api.dockerfile", "")).toBe("dockerfile");
+    expect(detect("Containerfile", "")).toBe("dockerfile");
+  });
+
+  it("reads a Kubernetes manifest named nginx-deployment.yaml as Kubernetes", async () => {
+    const { detect } = await import("../src");
+    const text = "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: http\nspec:\n  template:\n    metadata:\n      labels: {app: nginx}\n";
+    expect(detect("nginx-deployment.yaml", text)).toBe("kubernetes");
+  });
+});
+
+describe("dockerfile parsing", () => {
+  it("joins continuations across comment and blank lines", () => {
+    expect(rules("Dockerfile", "FROM debian:12\nRUN apt-get update && \\\n    # tools\n    apt-get install -y curl\nUSER app\n")).toContain("DF006");
+  });
+
+  it("honours the escape parser directive", () => {
+    const text = "# escape=`\nFROM mcr.microsoft.com/windows/nanoserver:ltsc2022\nCOPY app C:\\app\\\nUSER ContainerUser\nCMD [\"app.exe\"]\n";
+    expect(rules("Dockerfile", text)).not.toContain("DF002");
+  });
+
+  it("checks heredoc bodies", () => {
+    const r = rules("Dockerfile", "FROM debian:12\nRUN <<EOF\ncurl -fsSL https://x.sh | sh\nchmod 777 /app\nEOF\nUSER app\n");
+    expect(r).toContain("DF005");
+    expect(r).toContain("DF008");
+  });
+
+  it("knows a stage built from an earlier stage inherits its USER", () => {
+    expect(rules("Dockerfile", "FROM node:22.13 AS base\nUSER node\nFROM base\nCMD [\"node\", \"app.js\"]\n")).not.toContain("DF002");
+  });
+
+  it("keeps the final newline when it appends USER", async () => {
+    const { fix } = await import("../src");
+    expect(fix("Dockerfile", "FROM debian:12\nRUN echo hi\n").text).toBe("FROM debian:12\nRUN echo hi\nUSER 10001:10001\n");
+  });
+});
+
+describe("diff", () => {
+  it("stays fast and small on a large file with a small change", async () => {
+    const { unifiedDiff } = await import("../src");
+    const big = "FROM node:22\n" + "#\n".repeat(200_000);
+    const t0 = performance.now();
+    const d = unifiedDiff("Dockerfile", big, big.replace("FROM node:22\n", "FROM node:22\nUSER node\n"));
+    expect(performance.now() - t0).toBeLessThan(2000);
+    expect(d).toContain("+USER node");
+  });
+});

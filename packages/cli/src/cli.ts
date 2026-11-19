@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { audit, detect, fix, KIND_NAME, RULE, SEVERITY_RANK, toSarif, unifiedDiff, type FileReport, type Severity } from "@redline/core";
+import { audit, detect, fix, KIND_NAME, NOT_CONFIG, RULE, SEVERITY_RANK, toSarif, unifiedDiff, type FileReport, type Severity } from "@redline/core";
 
 const HELP = `Redline: audits Dockerfiles, Docker Compose, Kubernetes, nginx and sshd configs.
 
@@ -30,7 +30,9 @@ function collect(p: string, out: string[]) {
       if (!SKIP.has(e.name)) collect(path.join(p, e.name), out);
     } else if (e.isFile()) {
       const f = path.join(p, e.name);
-      if (/(dockerfile|containerfile|\.ya?ml$|\.conf$|sshd_config)/i.test(e.name) && statSync(f).size < 1_000_000) out.push(f);
+      const n = e.name.toLowerCase();
+      const config = /\.ya?ml$|\.conf$|sshd_config/.test(n) || (/dockerfile|containerfile/.test(n) && !NOT_CONFIG.test(n));
+      if (config && statSync(f).size < 1_000_000) out.push(f);
     }
   }
 }
@@ -68,6 +70,8 @@ export function main(argv = process.argv.slice(2)): number {
   }
   const failOn = values["fail-on"]!;
   if (!["low", "medium", "high", "critical", "never"].includes(failOn)) throw new Error(`--fail-on must be low, medium, high, critical or never, not "${failOn}".`);
+  if (!["text", "json", "sarif"].includes(values.format!)) throw new Error(`--format must be text, json or sarif, not "${values.format}".`);
+  if (values.fix && values.diff) throw new Error("Use --fix or --diff, not both.");
 
   const files: string[] = [];
   for (const p of positionals.length ? positionals : ["."]) collect(p, files);
@@ -91,11 +95,7 @@ export function main(argv = process.argv.slice(2)): number {
     reports.push(r);
   }
 
-  if (values.diff) {
-    process.stdout.write(patches.join(""));
-    return 0;
-  }
-  const out = values.format === "json" ? JSON.stringify(reports.map(({ name, kind, grade, score, errors, findings }) => ({ name, kind, grade, score, errors, findings: findings.map(({ edits, ...f }) => ({ ...f, title: RULE[f.rule].title, fixable: !!edits?.length })) })), null, 2) + "\n" : values.format === "sarif" ? JSON.stringify(toSarif(reports), null, 2) + "\n" : text(reports);
+  const out = values.diff ? patches.join("") : values.format === "json" ? JSON.stringify(reports.map(({ name, kind, grade, score, errors, findings }) => ({ name, kind, grade, score, errors, findings: findings.map(({ edits, ...f }) => ({ ...f, title: RULE[f.rule].title, fixable: !!edits?.length })) })), null, 2) + "\n" : values.format === "sarif" ? JSON.stringify(toSarif(reports), null, 2) + "\n" : text(reports);
   if (values.output) writeFileSync(values.output, out);
   else process.stdout.write(out);
 

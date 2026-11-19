@@ -12,17 +12,22 @@ export const RULE = Object.fromEntries(RULES.map((r) => [r.id, r])) as Record<st
 
 export const KIND_NAME: Record<Kind, string> = { dockerfile: "Dockerfile", compose: "Docker Compose", kubernetes: "Kubernetes", nginx: "nginx", sshd: "SSH server" };
 
+/** Extensions of source code, docs and data: `dockerfile.ts` or `Dockerfile.md` is not a Dockerfile. */
+export const NOT_CONFIG = /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rs|rb|java|kt|cs|php|sh|bash|ps1|md|mdx|txt|rst|adoc|html?|css|json|toml|lock|snap|orig|rej|bak|swp|tmp|diff|patch|ya?ml|xml|ini|j2|tpl|tmpl)$/;
+
 /** Works out what a file is from its name, falling back to its contents. */
 export function detect(name: string, text: string): Kind | null {
   const base = name.split(/[\\/]/).pop()!.toLowerCase();
-  if (/(^|\.)dockerfile$|^dockerfile(\.|-|$)|\.dockerfile$|^containerfile$/.test(base)) return "dockerfile";
+  if (/\.dockerfile$|^(docker|container)file$/.test(base) || (/^(docker|container)file[.-]/.test(base) && !NOT_CONFIG.test(base))) return "dockerfile";
+  if (NOT_CONFIG.test(base) && !/\.ya?ml$/.test(base)) return null;
   if (/^(docker-)?compose(\.[\w-]+)?\.ya?ml$/.test(base)) return "compose";
   if (/sshd_config|sshd.*\.conf$/.test(base)) return "sshd";
-  if (/nginx|\.conf$/.test(base) && /\b(server|http|location|upstream)\s*[^;]*\{/.test(text)) return "nginx";
   if (/\.ya?ml$/.test(base) || /^\s*(apiVersion|services|kind):/m.test(text)) {
     if (/^apiVersion:/m.test(text) && /^kind:/m.test(text)) return "kubernetes";
     if (/^services:/m.test(text)) return "compose";
+    if (/\.ya?ml$/.test(base)) return null;
   }
+  if (/nginx|\.conf$/.test(base) && /^\s*(server|http|location|upstream|events)\b[^;{\n]*\{/m.test(text)) return "nginx";
   if (/^\s*FROM\s+\S+/im.test(text) && /^\s*(RUN|CMD|COPY|ENTRYPOINT)\s/im.test(text)) return "dockerfile";
   if (/\b(server|http)\s*\{/.test(text) && /;\s*$/m.test(text)) return "nginx";
   if (looksLikeSshd(text)) return "sshd";
@@ -64,19 +69,22 @@ export function audit(name: string, text: string, forceKind?: Kind): FileReport 
  * another (adding a header to a server can make a location that overrides headers lose it).
  * Only rules in `only` are fixed when given.
  */
-export function fix(name: string, text: string, only?: Set<string>): { text: string; fixed: string[]; report: FileReport } {
+export function fix(name: string, text: string, only?: Set<string>, forceKind?: Kind): { text: string; fixed: string[]; report: FileReport } {
   let cur = text;
   const fixed: string[] = [];
-  let report = audit(name, cur);
+  let report = audit(name, cur, forceKind);
+  const kind = report.kind ?? undefined;
   for (let round = 0; round < 3; round++) {
     const todo = report.findings.filter((f) => f.edits?.length && (!only || only.has(f.rule)));
     if (!todo.length) break;
     const r = applyEdits(cur, todo);
     if (r.text === cur) break;
+    const next = audit(name, r.text, kind);
+    // A round of fixes that makes the file unreadable is thrown away, never handed back.
+    if (next.errors.length > report.errors.length) break;
     cur = r.text;
     fixed.push(...r.applied);
-    report = audit(name, cur, report.kind ?? undefined);
-    if (report.errors.length) break;
+    report = next;
   }
   return { text: cur, fixed, report };
 }

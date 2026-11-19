@@ -24,7 +24,7 @@ labelled test suite for `sshd_config` was found, so sshd is not in this benchmar
 | nginx | 48 | 36 | 95.1% | 81.3% | 2 | 0 |
 | **All** | 103 | 87 | 92.1% | 90.3% | 8 | 0 |
 
-Average time per file: 0.48 ms.
+Average time per file: 0.41 ms.
 
 ## Files Redline gets wrong in the held-out set
 

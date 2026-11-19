@@ -4,11 +4,26 @@ import type { Edit, Finding, Rule } from "./types";
 export type Instr = { cmd: string; args: string; line: number; endLine: number; stage: number };
 export type Stage = { line: number; image: string; alias?: string };
 
-/** Splits a Dockerfile into instructions, joining `\` continuations and skipping heredoc bodies. */
+/** The escape character set by a `# escape=` parser directive at the top of the file (default `\`). */
+export function escapeChar(lines: string[]): string {
+  for (const l of lines) {
+    const m = l.match(/^\s*#\s*([a-z]+)\s*=\s*(\S+)\s*$/i);
+    if (!m) break; // directives must come before anything else, comments included
+    if (m[1].toLowerCase() === "escape" && (m[2] === "`" || m[2] === "\\")) return m[2];
+  }
+  return "\\";
+}
+
+/**
+ * Splits a Dockerfile into instructions, joining line continuations (also across the comment
+ * and blank lines Docker allows inside them) and keeping heredoc bodies with their instruction.
+ */
 export function parseDockerfile(text: string): { instrs: Instr[]; stages: Stage[]; lines: string[] } {
   const lines = text.split(/\r?\n/);
   const instrs: Instr[] = [];
   const stages: Stage[] = [];
+  const esc = escapeChar(lines);
+  const trailing = new RegExp(`${esc === "`" ? "`" : "\\\\"}\\s*$`);
   let i = 0;
   while (i < lines.length) {
     const raw = lines[i];
@@ -18,22 +33,26 @@ export function parseDockerfile(text: string): { instrs: Instr[]; stages: Stage[
     }
     const start = i;
     let body = raw;
-    while (/\\\s*$/.test(lines[i]) && i + 1 < lines.length) {
+    let cont = trailing.test(raw);
+    while (cont && i + 1 < lines.length) {
       i++;
-      if (lines[i].trim().startsWith("#")) continue;
-      body = body.replace(/\\\s*$/, " ") + lines[i].trim();
+      const t = lines[i].trim();
+      if (!t || t.startsWith("#")) continue;
+      body = body.replace(trailing, " ") + t;
+      cont = trailing.test(lines[i]);
     }
     const m = body.trim().match(/^(\w+)\s*(.*)$/s);
     if (m) {
       const cmd = m[1].toUpperCase();
-      const args = m[2].trim();
-      // Heredoc: RUN <<EOF ... EOF
+      let args = m[2].trim();
+      // Heredoc: RUN <<EOF ... EOF. The body is part of the command, so it is checked too.
       const hd = args.match(/<<-?["']?(\w+)["']?/);
       let end = i;
       if (hd) {
         let j = i + 1;
         while (j < lines.length && lines[j].trim() !== hd[1]) j++;
         end = Math.min(j, lines.length - 1);
+        args += "\n" + lines.slice(i + 1, j).join("\n");
         i = end;
       }
       if (cmd === "FROM") {
@@ -85,17 +104,26 @@ export function checkDockerfile(text: string): Finding[] {
     else if (tag === "latest") add("DF001", s.line, `\`${img}\` follows whatever \`latest\` is on the day you build.`);
   }
 
-  // DF002: only the final stage runs.
+  // DF002: only the final stage runs. A stage built `FROM` an earlier one inherits its USER.
   const last = stages.length - 1;
   if (last >= 0) {
     const finalInstrs = instrs.filter((x) => x.stage === last);
     const users = finalInstrs.filter((x) => x.cmd === "USER");
+    let inherited: Instr | undefined;
+    for (let st = last, seen = 0; !users.length && seen < stages.length; seen++) {
+      const parent = stages.findIndex((p, k) => k < st && p.alias?.toLowerCase() === stages[st].image.toLowerCase());
+      if (parent < 0) break;
+      inherited = instrs.filter((x) => x.stage === parent && x.cmd === "USER").at(-1);
+      if (inherited) break;
+      st = parent;
+    }
     const lastUser = users.at(-1);
-    const isRoot = !lastUser || /^(root|0)(:|$)/.test(lastUser.args.trim());
+    const effectiveUser = lastUser ?? inherited;
+    const isRoot = !effectiveUser || /^(root|0)(:|$)/.test(effectiveUser.args.trim());
     if (isRoot) {
       const run = finalInstrs.find((x) => x.cmd === "CMD" || x.cmd === "ENTRYPOINT");
       const user = /(^|\/)node:/.test(stages[last].image) || stages[last].image === "node" ? "node" : "10001:10001";
-      const edits = lastUser ? [replaceLine(lastUser.line, `USER ${user}`, lines)] : run ? [insertBefore(run.line, [`USER ${user}`])] : [{ start: lines.length + 1, end: lines.length + 1, lines: [`USER ${user}`] }];
+      const edits = lastUser ? [replaceLine(lastUser.line, `USER ${user}`, lines)] : run ? [insertBefore(run.line, [`USER ${user}`])] : [{ start: lines.at(-1) === "" ? lines.length : lines.length + 1, end: lines.at(-1) === "" ? lines.length : lines.length + 1, lines: [`USER ${user}`] }];
       add("DF002", lastUser?.line ?? stages[last].line, lastUser ? `\`USER ${lastUser.args}\` is the last user set, so the app runs as root.` : "No `USER` in the final stage, so the app runs as root.", edits);
     }
   }
