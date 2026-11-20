@@ -1,12 +1,6 @@
 @import "tailwindcss";
 
 /*
- * Redline is a code editor for config files. Problems are squiggles under the line, with the
- * message written faintly at the end of it; a lightbulb in the gutter offers the fix. Red is
- * critical and high, amber is medium, blue is low. One accent (red, the editor's name) for
- * focus and selection.
- */
-/*
  * Redline is an inspector's desk. Each config file is a typed sheet of paper; problems are
  * marked on it by hand: red pen for critical and high, orange pencil for medium, blue pencil
  * (the proofreader's colour) for low. Notes go in the right margin, numbered like footnotes,
@@ -14,66 +8,6 @@
  * written in. Token names are shared with the reading pages, so they follow the same paper.
  */
 :root {
-  --bg: #d8d1c3; /* the desk */
-  --desk-2: #cfc7b7;
-  --panel: #f6f1e6; /* paper in shadow, cards */
-  --panel-2: #ece5d6;
-  --editor: #fdfbf5; /* the sheet */
-  --line: #ddd4c2; /* ruled lines, edges */
-  --ink: #1f1c17; /* typewriter ink */
-  --muted: #5a5347;
-  --faint: #736b5d;
-  --accent: #c8102e; /* the red pen */
-  --accent-soft: rgba(200, 16, 46, 0.1);
-  --sel: rgba(200, 16, 46, 0.055);
-  --crit: #c8102e;
-  --med: #a0520a; /* orange pencil */
-  --low: #2450b0; /* blue pencil */
-  --ok: #1e7343;
-  --add: rgba(200, 16, 46, 0.06);
-  --add-ink: #b0102a;
-  --del: transparent;
-  --margin-rule: rgba(200, 16, 46, 0.45);
-  --tok-key: #6b2fb3;
-  --tok-str: #1e6b40;
-  --tok-num: #9a4a00;
-  --tok-com: #736b5d;
-  --shadow: 0 1px 1px rgba(60, 45, 20, 0.12), 0 3px 0 -1px #f3eee2, 0 4px 1px -1px rgba(60, 45, 20, 0.16), 0 7px 0 -2px #efe9dc, 0 8px 2px -2px rgba(60, 45, 20, 0.14), 0 24px 40px -24px rgba(60, 45, 20, 0.45);
-  --lift: 0 1px 2px rgba(60, 45, 20, 0.18), 0 10px 24px -12px rgba(60, 45, 20, 0.5);
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121110;
-    --desk-2: #171614;
-    --panel: #26231f;
-    --panel-2: #2f2b26;
-    --editor: #1e1c19;
-    --line: #3a352e;
-    --ink: #ece5d6;
-    --muted: #b4ab9a;
-    --faint: #988f80;
-    --accent: #ff6b6b;
-    --accent-soft: rgba(255, 107, 107, 0.14);
-    --sel: rgba(255, 107, 107, 0.07);
-    --crit: #ff6b6b;
-    --med: #f2a54a;
-    --low: #8fb1ff;
-    --ok: #5fd08f;
-    --add: rgba(255, 107, 107, 0.08);
-    --add-ink: #ff8a8a;
-    --del: transparent;
-    --margin-rule: rgba(255, 107, 107, 0.4);
-    --tok-key: #c9a6ff;
-    --tok-str: #8fdcae;
-    --tok-num: #f2a54a;
-    --tok-com: #988f80;
-    --shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 3px 0 -1px #24211d, 0 4px 1px -1px rgba(0, 0, 0, 0.5), 0 7px 0 -2px #201e1a, 0 24px 40px -24px rgba(0, 0, 0, 0.9);
-    --lift: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 28px -12px rgba(0, 0, 0, 0.9);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
   --bg: #121110;
   --desk-2: #171614;
   --panel: #26231f;
@@ -296,18 +230,10 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.12em;
     opacity: 0.88;
-    mix-blend-mode: multiply;
+    mix-blend-mode: normal;
     -webkit-mask-image: radial-gradient(circle at 30% 40%, #000 60%, rgba(0, 0, 0, 0.75) 61%, #000 75%);
     mask-image: radial-gradient(circle at 30% 40%, #000 60%, rgba(0, 0, 0, 0.75) 61%, #000 75%);
     animation: thunk 0.28s cubic-bezier(0.2, 1.6, 0.4, 1);
-  }
-  :root[data-theme="dark"] .stamp {
-    mix-blend-mode: normal;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .stamp {
-      mix-blend-mode: normal;
-    }
   }
   /* File folders: each sheet's tab sticks up above the page. */
   .folder {

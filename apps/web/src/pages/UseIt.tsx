@@ -12,16 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: Vishwanathanirv/config-auditor@main
-        with:
-          path: .
-          fail-on: high
+      - name: Get Redline
+        run: curl -fsSL -o redline.cjs https://redline-config-auditor.vercel.app/redline.cjs
+      - name: Write the report
+        run: node redline.cjs . --format sarif --output redline.sarif --fail-on never
+      - name: Check
+        run: node redline.cjs . --fail-on high
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: redline.sarif`;
 
-const CLI = `# Check a whole repository (folders are searched, node_modules skipped)
+const CLI = `# Get it once: a single file, no install
+curl -fsSL -o redline.cjs https://redline-config-auditor.vercel.app/redline.cjs
+
+# Check a whole repository (folders are searched, node_modules skipped)
 node redline.cjs .
 
 # Only fail the build on critical problems
@@ -68,10 +73,10 @@ export function UseIt() {
       <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks on this desk are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
       <div className="mt-8 space-y-10">
         <Step title="On every pull request" code={ACTION}>
-          The GitHub Action checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">fail-on</code> to adjust.
+          This workflow checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">--fail-on</code> to adjust.
         </Step>
         <Step title="From the command line" code={CLI}>
-          One file, no install: <code className="font-mono">redline.cjs</code> from the repository's <code className="font-mono">action</code> folder runs on Node 20 or newer. <code className="font-mono">--diff</code> prints a patch you can read before applying with <code className="font-mono">git apply</code>.
+          One file, no install: <code className="font-mono">redline.cjs</code>, served by this site, runs on Node 20 or newer. <code className="font-mono">--diff</code> prints a patch you can read before applying with <code className="font-mono">git apply</code>.
         </Step>
         <Step title="Before each commit" code={HOOK}>
           A pre-commit hook checks only the files you are committing, so it takes milliseconds.

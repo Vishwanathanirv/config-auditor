@@ -589,7 +589,6 @@ export function Workbench() {
                 {VIEWS[to]}
               </button>
             ))}
-            <Lamp />
           </nav>
         </header>
 
@@ -773,10 +772,7 @@ export function Workbench() {
           )}
         </main>
         <p className="typed mt-4 px-2 text-center text-[11.5px] text-muted">
-          Drop config files anywhere on the desk to check them. ·{" "}
-          <a href="https://github.com/Vishwanathanirv/config-auditor" className="underline underline-offset-2 hover:text-ink">
-            Source
-          </a>
+          Drop config files anywhere on the desk to check them.
         </p>
       </div>
 
@@ -805,30 +801,3 @@ export function Workbench() {
   );
 }
 
-/** The desk lamp: light, dark, or whatever the system says. */
-function Lamp() {
-  const [t, setT] = useState(() => {
-    try {
-      return localStorage.getItem("redline-theme") ?? "system";
-    } catch {
-      return "system";
-    }
-  });
-  useEffect(() => {
-    if (t === "system") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = t;
-    try {
-      localStorage.setItem("redline-theme", t);
-    } catch {
-      /* ignore */
-    }
-  }, [t]);
-  return (
-    <button className="ml-1 grid h-9 w-9 place-items-center rounded-full text-muted hover:text-ink" onClick={() => setT(t === "system" ? "dark" : t === "dark" ? "light" : "system")} title={`Lamp: ${t}`} aria-label={`Theme: ${t}. Change theme`}>
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M6 21h8M10 21v-6l-4-5 5-6 5 4-3 3M14 11l4 4" />
-        {t !== "dark" && <path d="M19 17.5l1.5 1M17 19.5l.5 1.6M20 15l1.6.2" />}
-      </svg>
-    </button>
-  );
-}

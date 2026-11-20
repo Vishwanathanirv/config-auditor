@@ -10,13 +10,6 @@ import "@fontsource/caveat/700.css";
 import "./index.css";
 import { Workbench } from "./Workbench";
 
-try {
-  const t = localStorage.getItem("redline-theme");
-  if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
-} catch {
-  /* storage blocked */
-}
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>

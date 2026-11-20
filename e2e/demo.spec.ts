@@ -80,18 +80,25 @@ test("on a phone the sheet fits the screen and the notes are footnotes", async (
   await page.close();
 });
 
+// One dark theme, whatever the system asks for: check it under both preferences.
 for (const scheme of ["light", "dark"] as const) {
-  test.describe(`${scheme} lamp`, () => {
+  test.describe(`system prefers ${scheme}`, () => {
     test.use({ colorScheme: scheme });
-    for (const path of ["/", "/?file=sample:nginx/shop.conf", "/rules", "/bench", "/use"]) {
-      test(`no accessibility violations on ${path}`, async ({ page }) => {
-        const { default: AxeBuilder } = await import("@axe-core/playwright");
-        await page.goto(path);
-        await page.waitForLoadState("networkidle");
-        await page.evaluate(() => document.fonts.ready);
-        const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
-        expect(r.violations.map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
-      });
-    }
+    test("the desk stays dark", async ({ page }) => {
+      await page.goto("/");
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe("dark");
+      await expect(page.getByRole("button", { name: /theme/i })).toHaveCount(0);
+    });
+  });
+}
+
+for (const path of ["/", "/?file=sample:nginx/shop.conf", "/rules", "/bench", "/use"]) {
+  test(`no accessibility violations on ${path}`, async ({ page }) => {
+    const { default: AxeBuilder } = await import("@axe-core/playwright");
+    await page.goto(path);
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => document.fonts.ready);
+    const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(r.violations.map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
   });
 }

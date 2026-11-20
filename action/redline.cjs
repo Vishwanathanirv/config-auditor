@@ -8488,7 +8488,7 @@ function toSarif(reports, version = "1.0.0") {
           driver: {
             name: "Redline",
             version,
-            informationUri: "https://github.com/Vishwanathanirv/config-auditor",
+            informationUri: "https://redline-config-auditor.vercel.app",
             rules: rules.map((r) => ({
               id: r.id,
               name: r.title.replace(/[^A-Za-z0-9]+(.)?/g, (_, c2) => c2 ? c2.toUpperCase() : ""),
