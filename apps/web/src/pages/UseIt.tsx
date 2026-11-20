@@ -9,7 +9,7 @@ function useCliSha(): string | null {
     let live = true;
     fetch("/redline.cjs.sha256", { cache: "no-cache" })
       .then((r) => (r.ok ? r.text() : ""))
-      .then((t) => live && setSha(t.match(/^[0-9a-f]{64}/)?.[0] ?? null))
+      .then((t) => live && setSha(t.match(/^[0-9a-f]{64}(?![0-9a-f])/)?.[0] ?? null))
       .catch(() => {});
     return () => {
       live = false;

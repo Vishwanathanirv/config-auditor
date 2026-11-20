@@ -79,6 +79,8 @@ numbers in [bench/RESULTS.md](bench/RESULTS.md).
 
 ## How it works
 
+On the desk, **How it works** (or the `?` key) follows one file through the real engine in six stages: recognise the format, read it, mark the problems, explain one (why it matters, what to do, references), preview the fixes as a diff, and grade it before and after. Pick an example or paste your own, then **Put it on the desk**. A first-visit briefing explains the idea and opens the example Dockerfile with its fixes; **What is Redline?** brings it back.
+
 ```mermaid
 flowchart LR
   F[File] --> D{Detect type<br/>by name, then content}

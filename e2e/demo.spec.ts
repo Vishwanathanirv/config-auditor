@@ -2,6 +2,64 @@ import { expect, test } from "@playwright/test";
 
 const editor = (page: import("@playwright/test").Page, name = "Dockerfile") => page.getByLabel(`Contents of ${name}`);
 
+// Returning visitors: the first-visit briefing has been seen. The briefing has its own tests below.
+test.beforeEach(async ({ page }, info) => {
+  if (!info.title.startsWith("first visit")) await page.addInitScript(() => localStorage.setItem("redline-briefed", "1"));
+});
+
+test("first visit: the idea, then a risky Dockerfile with its fixes in one click", async ({ page }) => {
+  await page.goto("/");
+  const briefing = page.getByRole("dialog", { name: /red pen before it ships/ });
+  await expect(briefing).toBeVisible();
+  await expect(briefing.getByRole("button", { name: "Fix a risky Dockerfile →" })).toBeFocused();
+  await briefing.getByRole("button", { name: "Fix a risky Dockerfile →" }).click();
+  await expect(briefing).toBeHidden();
+  await expect(page).toHaveURL(/file=sample%3ADockerfile/);
+  await page.reload();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: "What is Redline?" }).click();
+  await expect(page.getByRole("dialog", { name: /red pen before it ships/ })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("first visit: the briefing and how it works have no accessibility violations", async ({ page }) => {
+  const { default: AxeBuilder } = await import("@axe-core/playwright");
+  const check = async () => {
+    const r = await new AxeBuilder({ page }).include("[role=dialog]").withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(r.violations.map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+  };
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.waitForTimeout(600);
+  await check();
+  await page.getByRole("dialog").getByRole("button", { name: "How it works" }).click();
+  await expect(page.getByRole("dialog", { name: "Follow one file across the desk" })).toBeVisible();
+  await check();
+});
+
+test("how it works follows a pasted file from recognising it to its grade", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "How it works" }).click();
+  const how = page.getByRole("dialog", { name: "Follow one file across the desk" });
+  const stage = (n: RegExp) => how.getByRole("list", { name: "Stages" }).getByRole("button", { name: n });
+  await stage(/Explain/).click();
+  await expect(how.getByText("Secret baked into the image")).toBeVisible();
+  await how.getByRole("radio", { name: "Paste your own" }).click();
+  await how.getByRole("textbox", { name: "File name" }).fill("nginx.conf");
+  await how.getByRole("textbox", { name: "File contents" }).fill("server {\n  listen 443 ssl;\n  ssl_protocols TLSv1 TLSv1.2;\n}\n");
+  await stage(/Recognise/).click();
+  await expect(how.getByText("nginx", { exact: true })).toBeVisible();
+  await stage(/Mark/).click();
+  await expect(how.getByText(/Allows TLSv1/)).toBeVisible();
+  await stage(/Grade/).click();
+  await expect(how.getByRole("img", { name: /As written: grade/ })).toBeVisible();
+  await how.getByRole("button", { name: "Put it on the desk →" }).click();
+  await expect(how).toBeHidden();
+  await expect(page.getByRole("tab", { name: /nginx\.conf/ })).toBeVisible();
+});
+
 test("the example Dockerfile opens with squiggles, and a lightbulb fix can be undone", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("tab", { name: /Dockerfile/, selected: true })).toBeVisible();

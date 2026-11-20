@@ -294,3 +294,88 @@ body {
     transition: none;
   }
 }
+
+/* The briefing: the sheet settles on the desk, and the example line gets marked up on a loop. */
+@keyframes settle {
+  from {
+    transform: translateY(10px) rotate(-0.4deg);
+    opacity: 0;
+  }
+}
+.briefing-card {
+  animation: settle 0.38s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.markup-strike::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 52%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  animation: strike 5s ease-in-out infinite;
+}
+@keyframes strike {
+  0%,
+  8% {
+    transform: scaleX(0);
+  }
+  22%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+.markup-note,
+.markup-insert {
+  opacity: 0;
+  animation: write 5s ease-out infinite;
+}
+.markup-insert {
+  animation-delay: 0.5s;
+}
+@keyframes write {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  32%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.markup-stamp {
+  opacity: 0;
+  animation: stampin 5s ease-out infinite;
+}
+@keyframes stampin {
+  0%,
+  44% {
+    opacity: 0;
+    transform: scale(1.6) rotate(-14deg);
+  }
+  50%,
+  92% {
+    opacity: 0.9;
+    transform: scale(1) rotate(-8deg);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .briefing-card,
+  .markup-strike::after,
+  .markup-note,
+  .markup-insert,
+  .markup-stamp {
+    animation: none;
+    opacity: 1;
+  }
+}

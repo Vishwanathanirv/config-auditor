@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { audit, detect, diffLines, fix, KIND_NAME, RULE, SEVERITY_RANK, unifiedDiff, type FileReport, type Kind, type Severity } from "@redline/core";
 import { highlight, TOK_COLOR } from "./highlight";
+import { Briefing, HowItWorks, useBriefing } from "./intro";
 import { addFile, download, findFile, removeFile, resetSample, saveText, SEV_CLASS, SEV_COLOR, useFiles, type DeskFile } from "./lib";
 import { Bench } from "./pages/Bench";
 import { Rulebook } from "./pages/Rulebook";
@@ -495,6 +496,9 @@ export function Workbench() {
   const [newName, setNewName] = useState<string | null>(null);
   const [dropping, setDropping] = useState(false);
   const upload = useRef<HTMLInputElement>(null);
+  const [briefing, setBriefing] = useBriefing();
+  const [how, setHow] = useState(false);
+  const dialog = briefing || how;
 
   const reports = useMemo(() => files.map((f) => ({ f, r: audit(f.name, f.text, f.kind) })), [files]);
   const report = active ? (reports.find((x) => x.f.id === active.id)?.r ?? null) : null;
@@ -537,6 +541,12 @@ export function Workbench() {
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (e.key === "?" && !dialog && tag !== "INPUT" && tag !== "TEXTAREA" && !(e.target as HTMLElement).isContentEditable) {
+        e.preventDefault();
+        setHow(true);
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key === ".") {
         e.preventDefault();
         if (report) apply(fixableRules(report), "every problem with a fix");
@@ -544,7 +554,7 @@ export function Workbench() {
     };
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
-  }, [apply, report]);
+  }, [apply, report, dialog]);
 
   async function addFrom(list: FileList | File[]) {
     let last: DeskFile | undefined;
@@ -557,12 +567,20 @@ export function Workbench() {
     await addFrom(e.dataTransfer.files);
   }
 
+  const showFixes = (id: string) => {
+    open(id);
+    setMode("proof");
+    setTimeout(() => document.getElementById("sheet")?.scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+  };
+
   const total = reports.reduce((n, x) => n + x.r.findings.length, 0);
   const fixable = report ? report.findings.filter((f) => f.edits?.length).length : 0;
 
   return (
+    <>
     <div
       className="min-h-dvh pb-10"
+      inert={dialog}
       onDragOver={(e) => {
         e.preventDefault();
         setDropping(true);
@@ -583,7 +601,13 @@ export function Workbench() {
             </svg>
           </a>
           <span className="hand hidden text-[19px] text-muted sm:inline">inspects config files with a red pen</span>
-          <nav className="typed ml-auto flex items-center gap-1 text-[13px]" aria-label="Reference">
+          <nav className="typed ml-auto flex flex-wrap items-center gap-1 text-[13px]" aria-label="Reference">
+            <button onClick={() => setBriefing(true)} className="rounded-[50%] px-2.5 py-1 text-muted hover:text-ink">
+              What is Redline?
+            </button>
+            <button onClick={() => setHow(true)} className="rounded-[50%] px-2.5 py-1 text-muted hover:text-ink" title="How it works (?)">
+              How it works
+            </button>
             {(Object.keys(VIEWS) as ViewPath[]).map((to) => (
               <button key={to} onClick={() => open(to)} aria-current={view === to ? "page" : undefined} className={`rounded-[50%] px-2.5 py-1 ${view === to ? "outline-[1.6px] outline outline-[var(--accent)]" : "text-muted hover:text-ink"}`}>
                 {VIEWS[to]}
@@ -798,6 +822,29 @@ export function Workbench() {
         </div>
       )}
     </div>
+    {briefing && (
+      <Briefing
+        onClose={() => setBriefing(false)}
+        onTry={() => {
+          setBriefing(false);
+          showFixes("sample:Dockerfile");
+        }}
+        onHow={() => {
+          setBriefing(false);
+          setHow(true);
+        }}
+      />
+    )}
+    {how && (
+      <HowItWorks
+        onClose={() => setHow(false)}
+        onOpen={(f) => {
+          setHow(false);
+          showFixes(f.sample ?? addFile(f.name, f.text).id);
+        }}
+      />
+    )}
+    </>
   );
 }
 
