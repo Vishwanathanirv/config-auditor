@@ -126,7 +126,7 @@ Exit code 1 when anything at or above `--fail-on` (default `high`) is found, 2 o
 
 ### In CI
 
-The hosted site serves the same single-file CLI at `/redline.cjs`, so any pipeline can fetch it:
+The hosted site serves the same single-file CLI at `/redline.cjs`, with its SHA-256 at `/redline.cjs.sha256`, so any pipeline can fetch it. The site's *Use it* page shows this workflow with the download pinned to the current release (`echo "<sha256>  redline.cjs" | sha256sum -c`), so a changed file stops the build instead of running:
 
 ```yaml
 permissions:

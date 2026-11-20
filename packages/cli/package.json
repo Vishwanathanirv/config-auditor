@@ -5,7 +5,7 @@
   "type": "module",
   "bin": { "redline": "dist/redline.cjs" },
   "scripts": {
-    "build": "esbuild src/cli.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/redline.cjs --alias:@redline/core=../core/src/index.ts --banner:js=\"#!/usr/bin/env node\" && cp dist/redline.cjs ../../action/redline.cjs && cp dist/redline.cjs ../../apps/web/public/redline.cjs"
+    "build": "esbuild src/cli.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/redline.cjs --alias:@redline/core=../core/src/index.ts --banner:js=\"#!/usr/bin/env node\" && node scripts/publish.mjs"
   },
   "dependencies": { "@redline/core": "*" }
 }

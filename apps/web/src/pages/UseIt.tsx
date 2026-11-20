@@ -1,6 +1,34 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
-const ACTION = `name: Config audit
+const CLI_URL = "https://redline-config-auditor.vercel.app/redline.cjs";
+
+/** The published CLI's SHA-256 (written by the build next to the file), or null until it loads. */
+function useCliSha(): string | null {
+  const [sha, setSha] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    fetch("/redline.cjs.sha256", { cache: "no-cache" })
+      .then((r) => (r.ok ? r.text() : ""))
+      .then((t) => live && setSha(t.match(/^[0-9a-f]{64}/)?.[0] ?? null))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
+  return sha;
+}
+
+/** With a known hash, the download step refuses any file that isn't byte-for-byte this release. */
+const getStep = (sha: string | null) =>
+  sha
+    ? `      - name: Get Redline (pinned to this release)
+        run: |
+          curl -fsSL -o redline.cjs ${CLI_URL}
+          echo "${sha}  redline.cjs" | sha256sum -c`
+    : `      - name: Get Redline
+        run: curl -fsSL -o redline.cjs ${CLI_URL}`;
+
+const action = (sha: string | null) => `name: Config audit
 on: [push, pull_request]
 
 permissions:
@@ -12,8 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Get Redline
-        run: curl -fsSL -o redline.cjs https://redline-config-auditor.vercel.app/redline.cjs
+${getStep(sha)}
       - name: Write the report
         run: node redline.cjs . --format sarif --output redline.sarif --fail-on never
       - name: Check
@@ -23,8 +50,9 @@ jobs:
         with:
           sarif_file: redline.sarif`;
 
-const CLI = `# Get it once: a single file, no install
-curl -fsSL -o redline.cjs https://redline-config-auditor.vercel.app/redline.cjs
+const cli = (sha: string | null) => `# Get it once: a single file, no install
+curl -fsSL -o redline.cjs ${CLI_URL}${sha ? `
+echo "${sha}  redline.cjs" | sha256sum -c   # macOS: shasum -a 256 -c` : ""}
 
 # Check a whole repository (folders are searched, node_modules skipped)
 node redline.cjs .
@@ -66,16 +94,17 @@ function Step({ title, children, code }: { title: string; children: ReactNode; c
 }
 
 export function UseIt() {
+  const sha = useCliSha();
   return (
     <div className="max-w-6xl">
       <div className="typed text-[11px] uppercase tracking-[0.18em] text-muted">Paperwork</div>
       <h1 className="mt-1 text-[1.8rem] font-bold leading-tight">Put it where configs change</h1>
       <p className="mt-3 max-w-2xl text-[1.02rem] leading-relaxed text-muted">The checks on this desk are the same code as the command line, the GitHub Action and the API, so a problem you see here is the one your pipeline will stop.</p>
       <div className="mt-8 space-y-10">
-        <Step title="On every pull request" code={ACTION}>
-          This workflow checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">--fail-on</code> to adjust.
+        <Step title="On every pull request" code={action(sha)}>
+          This workflow checks the repository and uploads the results to GitHub code scanning, so each problem appears on the line that caused it in the pull request. The build fails on anything high or worse; change <code className="font-mono">--fail-on</code> to adjust. The download is pinned to this release by its SHA-256, so a changed file stops the build instead of running; update the hash when you want a newer Redline.
         </Step>
-        <Step title="From the command line" code={CLI}>
+        <Step title="From the command line" code={cli(sha)}>
           One file, no install: <code className="font-mono">redline.cjs</code>, served by this site, runs on Node 20 or newer. <code className="font-mono">--diff</code> prints a patch you can read before applying with <code className="font-mono">git apply</code>.
         </Step>
         <Step title="Before each commit" code={HOOK}>
