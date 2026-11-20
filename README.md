@@ -124,7 +124,9 @@ node action/redline.cjs . --format sarif --output redline.sarif
 
 Exit code 1 when anything at or above `--fail-on` (default `high`) is found, 2 on a usage error.
 
-### GitHub Action
+### In CI
+
+The hosted site serves the same single-file CLI at `/redline.cjs`, so any pipeline can fetch it:
 
 ```yaml
 permissions:
@@ -135,9 +137,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: Vishwanathanirv/config-auditor@main
-        with:
-          fail-on: high
+      - name: Get Redline
+        run: curl -fsSL -o redline.cjs https://redline-config-auditor.vercel.app/redline.cjs
+      - name: Write the report
+        run: node redline.cjs . --format sarif --output redline.sarif --fail-on never
+      - name: Check
+        run: node redline.cjs . --fail-on high
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
