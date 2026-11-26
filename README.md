@@ -1,13 +1,12 @@
-# Redline · An inspector with a red pen for your config files
+# Redline · Security review for config files
 
-
-Redline reads the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**) the way an inspector marks up a printed page. Each file is a typed sheet. Every problem gets a circled number in the margin, an underline in red pen (critical and high), orange pencil (medium) or blue pencil (low), and a handwritten note beside the line. The notes are numbered like footnotes and say in plain English what is wrong on that line, why it matters, and how to fix it. The grade is stamped at the top. It all updates as you type. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
+Redline reviews the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**). Every problem is underlined on its line and numbered in the gutter, with its severity, why it matters and how to fix it, plus a grade from A to F. It all updates as you type. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
 
 **Live demo: [redline-config-auditor.vercel.app](https://redline-config-auditor.vercel.app)**
 
 It runs in the browser (nothing is uploaded), on the command line, as a GitHub Action that puts findings on pull requests, and as an API.
 
-![A Dockerfile marked up by Redline: circled numbers, red-pen underlines, margin notes and a stamped grade](docs/screenshots/editor.png)
+![A Dockerfile reviewed by Redline: flagged lines numbered in the gutter, annotations beside them, and the grade](docs/screenshots/editor.png)
 
 ## Why
 
@@ -21,21 +20,19 @@ Some of the checks catch traps that experienced people still fall into:
 - **nginx `add_header` inheritance:** one `add_header` in a location silently drops every security header set on the server.
 - **Docker bypasses ufw:** `"5432:5432"` in compose opens the database to the internet even with a firewall on. Redline rewrites it to `127.0.0.1:5432:5432`.
 
-![The index card for one line, with its fix](docs/screenshots/quick-fix.png)
+![The actions for one line, with its fix](docs/screenshots/quick-fix.png)
 
 ## Fixing
 
 Three ways, all with undo:
 
-- Click a **circled number** in the margin to open that line's index card, then fix the problem from there. **Fix all**, next to the stamp, fixes everything that can be fixed (or press Ctrl .).
-- Open **Fix preview** to see the fixes as proofreading marks: lines marked `dele` are struck out, lines marked `‸` are written in. Untick the fixes you don't want. Apply it, download the fixed file, or copy it as a patch.
+- Click a **numbered marker** in the gutter to see that line's findings and fix them from there. **Fix all**, next to the grade, fixes everything that has an autofix (or press Ctrl .).
+- Open **Fix preview** to see the fixes as a diff. Untick the ones you don't want, then apply them, download the fixed file, or copy them as a patch.
 - Or just edit the file: it is checked again on every key press.
 
-The **inspector's notes** under the sheet list everything on this sheet or on every sheet; click one to jump to its line and read why it matters. On a phone the margin notes become these footnotes. Your files and edits stay in your browser. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
+The **Findings** list under the file shows this file or all files; click one to jump to its line and read why it matters, with its source. On a phone the annotations beside the code are hidden and this list carries them. Your files and edits stay in your browser. Fixes are written as small line edits, so your comments and layout stay as they were, and several fixes to the same Kubernetes container are merged into one `securityContext` block.
 
 ![Fix preview](docs/screenshots/fix-preview.png)
-
-![With the lamp turned down (dark theme)](docs/screenshots/dark.png)
 
 ![On a phone](docs/screenshots/mobile.png)
 
@@ -53,7 +50,7 @@ From `npm run evaluate` (the same files run as unit tests on every push):
 
 **What this does and doesn't prove.** The 25 test files were written by hand and labelled with the problems they contain. Every rule is covered, but it is a small set: real configs with unusual layouts can still trip a rule or slip past one. The rules are pattern-based and don't know your context (a monitoring agent may really need host access), which is why each automatic fix can be unticked.
 
-![The lab report](docs/screenshots/bench.png)
+![The benchmark page](docs/screenshots/bench.png)
 
 ### On other projects' test files
 
@@ -77,9 +74,7 @@ Before tuning, the same held-out files scored 93.1% precision and 61.4% recall (
 labels Redline deliberately disagrees with are in [bench/README.md](bench/README.md); full
 numbers in [bench/RESULTS.md](bench/RESULTS.md).
 
-## How it works
-
-On the desk, **How it works** (or the `?` key) follows one file through the real engine in six stages: recognise the format, read it, mark the problems, explain one (why it matters, what to do, references), preview the fixes as a diff, and grade it before and after. Pick an example or paste your own, then **Put it on the desk**. A first-visit briefing explains the idea and opens the example Dockerfile with its fixes; **What is Redline?** brings it back.
+## Engine
 
 ```mermaid
 flowchart LR
@@ -107,7 +102,7 @@ Requires Node 22.13+.
 npm install
 npm run dev          # web on :5173, API on :8080
 npm test             # 94 unit and API tests
-npm run test:e2e     # browser tests (Playwright)
+npm run test:e2e     # 15 browser tests (Playwright), including axe accessibility checks
 npm run evaluate     # rebuild the test bench report
 npm run bench        # precision and recall on KICS and gixy test files
 ```
@@ -128,7 +123,7 @@ Exit code 1 when anything at or above `--fail-on` (default `high`) is found, 2 o
 
 ### In CI
 
-The hosted site serves the same single-file CLI at `/redline.cjs`, with its SHA-256 at `/redline.cjs.sha256`, so any pipeline can fetch it. The site's *Use it* page shows this workflow with the download pinned to the current release (`echo "<sha256>  redline.cjs" | sha256sum -c`), so a changed file stops the build instead of running:
+The hosted site serves the same single-file CLI at `/redline.cjs`, with its SHA-256 at `/redline.cjs.sha256`, so any pipeline can fetch it. The site's **CLI, Action, API** page shows this workflow with the download pinned to the current release (`echo "<sha256>  redline.cjs" | sha256sum -c`), so a changed file stops the build instead of running:
 
 ```yaml
 permissions:

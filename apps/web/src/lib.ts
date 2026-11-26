@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { SAMPLES, type Kind, type Severity } from "@redline/core";
 
-export type DeskFile = { id: string; name: string; text: string; own: boolean; note?: string; kind?: Kind; edited?: boolean };
+export type WorkFile = { id: string; name: string; text: string; own: boolean; note?: string; kind?: Kind; edited?: boolean };
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -23,7 +23,7 @@ const FILES = "redline-files-v1";
 const EDITS = "redline-edits-v1";
 
 /** Your own files, and your edits to the examples, live in this browser only. */
-let own: DeskFile[] = load<DeskFile[]>(FILES, []).filter((f) => typeof f.name === "string" && typeof f.text === "string");
+let own: WorkFile[] = load<WorkFile[]>(FILES, []).filter((f) => typeof f.name === "string" && typeof f.text === "string");
 let edits: Record<string, string> = load(EDITS, {});
 let version = 0;
 const listeners = new Set<() => void>();
@@ -32,10 +32,10 @@ const changed = () => {
   listeners.forEach((l) => l());
 };
 
-const SAMPLE_BASE: DeskFile[] = SAMPLES.map((s) => ({ id: `sample:${s.name}`, name: s.name, text: s.text, own: false, note: s.note }));
+const SAMPLE_BASE: WorkFile[] = SAMPLES.map((s) => ({ id: `sample:${s.name}`, name: s.name, text: s.text, own: false, note: s.note }));
 
 /** Every file in the workspace: the example project (with your edits), then yours. */
-export function allFiles(): DeskFile[] {
+export function allFiles(): WorkFile[] {
   return [...SAMPLE_BASE.map((f) => (edits[f.id] !== undefined ? { ...f, text: edits[f.id], edited: true } : f)), ...own];
 }
 export const useFiles = () => {
@@ -67,9 +67,9 @@ export function resetSample(id: string) {
   changed();
 }
 
-export function addFile(name: string, text: string, kind?: Kind): DeskFile {
+export function addFile(name: string, text: string, kind?: Kind): WorkFile {
   const existing = own.find((f) => f.name === name);
-  const f: DeskFile = { id: existing?.id ?? `own:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, name, text, own: true, kind };
+  const f: WorkFile = { id: existing?.id ?? `own:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, name, text, own: true, kind };
   own = existing ? own.map((o) => (o.id === f.id ? f : o)) : [...own, f];
   persist(FILES, own);
   changed();
@@ -81,8 +81,8 @@ export function removeFile(id: string) {
   changed();
 }
 
-export const SEV_CLASS: Record<Severity, "sq-crit" | "sq-med" | "sq-low"> = { critical: "sq-crit", high: "sq-crit", medium: "sq-med", low: "sq-low" };
-export const SEV_COLOR: Record<Severity, string> = { critical: "var(--crit)", high: "var(--crit)", medium: "var(--med)", low: "var(--low)" };
+export const SEV_CLASS: Record<Severity, string> = { critical: "sq-crit", high: "sq-high", medium: "sq-med", low: "sq-low" };
+export const SEV_COLOR: Record<Severity, string> = { critical: "var(--crit)", high: "var(--high)", medium: "var(--med)", low: "var(--low)" };
 
 export function download(name: string, text: string) {
   // octet-stream, so the browser keeps the exact name instead of adding ".txt".
