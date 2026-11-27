@@ -24,8 +24,9 @@ const recall = (t: Tally) => pct(t.tp, t.tp + t.fn);
 /** Pass or fail. */
 function Mark({ ok }: { ok: boolean }) {
   return (
-    <span className="mono text-[15px] font-semibold leading-none" style={{ color: ok ? "var(--ok)" : "var(--crit)" }} aria-label={ok ? "matches" : "does not match"}>
-      {ok ? "✓" : "✗"}
+    <span className="mono text-[15px] font-semibold leading-none" style={{ color: ok ? "var(--ok)" : "var(--crit)" }}>
+      <span aria-hidden>{ok ? "✓" : "✗"}</span>
+      <span className="sr-only">{ok ? "matches" : "does not match"}</span>
     </span>
   );
 }

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { audit, detect, diffLines, fix, KIND_NAME, RULE, SEVERITY_RANK, unifiedDiff, type FileReport, type Kind, type Severity } from "@redline/core";
 import { highlight, TOK_COLOR } from "./highlight";
-import { addFile, download, findFile, removeFile, resetSample, saveText, SEV_CLASS, SEV_COLOR, useFiles, type WorkFile } from "./lib";
+import { addFile, download, findFile, lastSaveFailed, MAX_FILE, removeFile, resetSample, saveText, SEV_CLASS, SEV_COLOR, useFiles, type WorkFile } from "./lib";
+import { isBinary } from "./shape";
 import { Bench } from "./pages/Bench";
 import { Rulebook } from "./pages/Rulebook";
 import { UseIt } from "./pages/UseIt";
@@ -15,6 +16,8 @@ import { UseIt } from "./pages/UseIt";
  */
 
 const LH = 24;
+/** Above this size the file is shown without syntax colours, so typing stays responsive. */
+const HIGHLIGHT_LIMIT = 200_000;
 const PAD = 16;
 const VIEWS = { "/rules": "Rules", "/bench": "Benchmark", "/use": "CLI, Action, API" } as const;
 type ViewPath = keyof typeof VIEWS;
@@ -42,8 +45,9 @@ const gradeTone = (g: string) => (g <= "B" ? "var(--ok)" : g === "C" ? "var(--me
 
 function Sev({ s }: { s: Severity }) {
   return (
-    <span className="sev shrink-0" style={{ color: SEV_COLOR[s] }} aria-label={s}>
-      {SEV_SHORT[s]}
+    <span className="sev relative shrink-0" style={{ color: SEV_COLOR[s] }}>
+      <span aria-hidden>{SEV_SHORT[s]}</span>
+      <span className="sr-only">{s}</span>
     </span>
   );
 }
@@ -63,6 +67,7 @@ function Editor({
   text,
   onChange,
   jump,
+  onJumped,
   onCursor,
   onApply,
   onRead,
@@ -72,13 +77,18 @@ function Editor({
   notes: Note[];
   text: string;
   onChange: (t: string) => void;
-  jump: { line: number; n: number } | null;
+  jump: { fileId: string; line: number; n: number } | null;
+  onJumped: () => void;
   onCursor: (line: number, col: number) => void;
   onApply: (rules: string[], label: string) => void;
   onRead: (n: number) => void;
 }) {
   const area = useRef<HTMLTextAreaElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState<number | null>(null);
+  // Escape, then Tab, moves focus out of the editor; otherwise Tab indents.
+  const tabLeaves = useRef(false);
+  const plainText = text.length > HIGHLIGHT_LIMIT;
   const lines = text.split("\n");
   const byLine = useMemo(() => {
     const m = new Map<number, Note[]>();
@@ -113,8 +123,9 @@ function Editor({
   });
 
   useEffect(() => {
-    if (!jump || !area.current) return;
+    if (!jump || jump.fileId !== file.id || !area.current) return;
     const el = area.current;
+    onJumped();
     const start = lines.slice(0, jump.line - 1).reduce((n, l) => n + l.length + 1, 0);
     el.focus({ preventScroll: true });
     el.setSelectionRange(start, start + (lines[jump.line - 1]?.length ?? 0));
@@ -124,7 +135,13 @@ function Editor({
 
   useEffect(() => {
     if (menu === null) return;
-    const key = (e: KeyboardEvent) => e.key === "Escape" && setMenu(null);
+    menuRef.current?.querySelector<HTMLElement>("button")?.focus();
+    const line = menu;
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setMenu(null);
+      document.querySelector<HTMLElement>(`[data-marker="${line}"]`)?.focus();
+    };
     const down = (e: MouseEvent) => !(e.target as HTMLElement).closest("[data-menu]") && setMenu(null);
     window.addEventListener("keydown", key);
     window.addEventListener("mousedown", down);
@@ -153,6 +170,7 @@ function Editor({
                 {fs ? (
                   <button
                     data-menu
+                    data-marker={i + 1}
                     className="marker hover:brightness-110"
                     style={{ background: SEV_COLOR[fs[0].severity] }}
                     onClick={() => setMenu(menu === i + 1 ? null : i + 1)}
@@ -172,12 +190,12 @@ function Editor({
         </div>
 
         {/* A highlighted copy underneath, the real textarea on top. */}
-        <div className="scroll-y min-w-0 flex-1 overflow-x-auto overflow-y-hidden">
+        <div className="scroll-y min-w-0 flex-1 overflow-x-auto overflow-y-hidden focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-[var(--accent)]">
           <div className="relative w-max min-w-full">
             <div className="code pointer-events-none pb-10 pl-3 pr-8" style={{ paddingTop: PAD, lineHeight: `${LH}px` }} aria-hidden>
               {lines.map((l, i) => {
                 const fs = byLine.get(i + 1);
-                const toks = highlight(l, report.kind);
+                const toks = plainText ? [{ t: l, c: undefined }] : highlight(l, report.kind);
                 return (
                   <div key={i} id={`L${i + 1}`} style={{ height: LH, background: fs ? "var(--sel)" : undefined, boxShadow: fs ? `inset 2px 0 0 ${SEV_COLOR[fs[0].severity]}` : undefined }}>
                     <span className={fs ? SEV_CLASS[fs[0].severity] : undefined}>
@@ -200,6 +218,15 @@ function Editor({
               onKeyUp={cursor}
               onClick={cursor}
               onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  tabLeaves.current = true;
+                  return;
+                }
+                if (e.key === "Tab" && tabLeaves.current) {
+                  tabLeaves.current = false;
+                  return;
+                }
+                tabLeaves.current = false;
                 if (e.key === "Tab" && !e.shiftKey) {
                   e.preventDefault();
                   const el = e.currentTarget;
@@ -213,10 +240,13 @@ function Editor({
               autoComplete="off"
               wrap="off"
               aria-label={`Contents of ${file.name}`}
-              aria-describedby="findings"
+              aria-describedby="editor-hint findings"
               className="code absolute inset-0 resize-none overflow-hidden bg-transparent pb-10 pl-3 pr-8 text-transparent caret-[var(--accent)] outline-none selection:bg-[var(--accent-soft)] selection:text-transparent"
               style={{ paddingTop: PAD, lineHeight: `${LH}px` }}
             />
+            <span id="editor-hint" className="sr-only">
+              Tab indents. Press Escape, then Tab, to leave the editor.
+            </span>
           </div>
         </div>
       </div>
@@ -242,7 +272,7 @@ function Editor({
 
       {/* Actions for one line. */}
       {menu !== null && starts.get(menu) && (
-        <div className="card pop absolute left-12 z-30 w-[min(26rem,calc(100%-3.5rem))] p-3 sm:left-16" style={{ top: PAD + menu * LH + 4 }} role="menu" aria-label={`Findings on line ${menu}`} data-menu>
+        <div className="card pop absolute left-12 z-30 w-[min(26rem,calc(100%-3.5rem))] p-3 sm:left-16" style={{ top: PAD + menu * LH + 4 }} role="group" aria-label={`Findings on line ${menu}`} data-menu ref={menuRef}>
           <div className="eyebrow mb-2">Line {menu}</div>
           {starts.get(menu)!.map((f) => {
             const n = report.findings.filter((x) => x.rule === f.rule && x.edits?.length).length;
@@ -260,7 +290,6 @@ function Editor({
                 <div className="mt-2 flex flex-wrap items-center gap-3 pl-[3.1rem]">
                   {f.edits?.length ? (
                     <button
-                      role="menuitem"
                       className="btn btn-accent btn-sm"
                       onClick={() => {
                         setMenu(null);
@@ -274,7 +303,6 @@ function Editor({
                     <span className="text-[12.5px] text-muted">Manual fix</span>
                   )}
                   <button
-                    role="menuitem"
                     className="text-[12.5px] text-muted underline underline-offset-2 hover:text-ink"
                     onClick={() => {
                       setMenu(null);
@@ -500,14 +528,30 @@ export function Workbench() {
   const [scope, setScope] = useState<"file" | "all">("file");
   const [openNote, setOpenNote] = useState<string | null>(null);
   const [cursor, setCursor] = useState({ line: 1, col: 1 });
-  const [jump, setJump] = useState<{ line: number; n: number } | null>(null);
-  const [toast, setToast] = useState<{ text: string; undo?: { id: string; text: string } } | null>(null);
+  const [jump, setJump] = useState<{ fileId: string; line: number; n: number } | null>(null);
+  const [toast, setToast] = useState<{ text: string; undo?: { id: string; text: string; after: string } } | null>(null);
   const [newName, setNewName] = useState<string | null>(null);
   const [dropping, setDropping] = useState(false);
   const [skipped, setSkipped] = useState<string[]>([]);
   const upload = useRef<HTMLInputElement>(null);
 
-  const reports = useMemo(() => files.map((f) => ({ f, r: audit(f.name, f.text, f.kind) })), [files]);
+  // Each file is audited once per distinct text: typing re-checks only the file being edited,
+  // and the deferred copy lets keystrokes paint before the audit catches up.
+  const cache = useRef(new Map<string, { name: string; text: string; kind?: Kind; r: FileReport }>());
+  const deferred = useDeferredValue(files);
+  const reports = useMemo(() => {
+    const live = new Set<string>();
+    const out = deferred.map((f) => {
+      live.add(f.id);
+      const hit = cache.current.get(f.id);
+      if (hit && hit.text === f.text && hit.name === f.name && hit.kind === f.kind) return { f, r: hit.r };
+      const r = audit(f.name, f.text, f.kind);
+      cache.current.set(f.id, { name: f.name, text: f.text, kind: f.kind, r });
+      return { f, r };
+    });
+    for (const id of cache.current.keys()) if (!live.has(id)) cache.current.delete(id);
+    return out;
+  }, [deferred]);
   const report = active ? (reports.find((x) => x.f.id === active.id)?.r ?? null) : null;
   const notes = useMemo(() => (report ? numbered(report) : []), [report]);
 
@@ -518,7 +562,7 @@ export function Workbench() {
   const jumpTo = (id: string, line: number) => {
     if (id !== activeId) open(id);
     setMode("annotated");
-    setTimeout(() => setJump({ line, n: Date.now() }), 30);
+    setTimeout(() => setJump({ fileId: id, line, n: Date.now() }), 30);
   };
   const readNote = (n: number) => {
     if (!active) return;
@@ -532,10 +576,9 @@ export function Workbench() {
       if (!active) return;
       const before = active.text;
       const r = fix(active.name, before, new Set(rules), report?.kind ?? undefined);
-      if (r.text === before) return;
-      saveText(active.id, r.text);
+      if (r.text === before || !saveText(active.id, r.text)) return;
       const fixed = report ? report.findings.length - r.report.findings.length : 0;
-      setToast({ text: `Fixed ${label}${fixed > 0 ? `: ${fixed} finding${fixed === 1 ? "" : "s"} resolved` : ""}.`, undo: { id: active.id, text: before } });
+      setToast({ text: `Fixed ${label}${fixed > 0 ? `: ${fixed} finding${fixed === 1 ? "" : "s"} resolved` : ""}.`, undo: { id: active.id, text: before, after: r.text } });
     },
     [active, report],
   );
@@ -559,16 +602,34 @@ export function Workbench() {
 
   async function addFrom(list: FileList | File[]) {
     let last: WorkFile | undefined;
-    const tooBig: string[] = [];
+    const skip: string[] = [];
     const all = [...list];
     for (const f of all.slice(0, 20)) {
-      if (f.size >= 1_000_000) tooBig.push(f.name);
-      else last = addFile(f.name, await f.text());
+      if (f.size >= MAX_FILE) {
+        skip.push(`${f.name} (over 1 MB)`);
+        continue;
+      }
+      let text: string;
+      try {
+        text = await f.text();
+      } catch {
+        skip.push(`${f.name} (could not be read)`);
+        continue;
+      }
+      if (isBinary(text)) {
+        skip.push(`${f.name} (not a text file)`);
+        continue;
+      }
+      const added = addFile(f.name, text);
+      if (added) last = added;
+      else skip.push(`${f.name} (browser storage full)`);
     }
-    setSkipped([...tooBig.map((n) => `${n} (over 1 MB)`), ...all.slice(20).map((f) => `${f.name} (over 20 files)`)]);
+    setSkipped([...skip, ...all.slice(20).map((f) => `${f.name} (over 20 files)`)]);
     if (last) open(last.id);
   }
+  const hasFiles = (e: DragEvent) => [...e.dataTransfer.types].includes("Files");
   async function onDrop(e: DragEvent) {
+    if (!hasFiles(e)) return;
     e.preventDefault();
     setDropping(false);
     await addFrom(e.dataTransfer.files);
@@ -582,6 +643,7 @@ export function Workbench() {
     <div
       className="min-h-dvh pb-10"
       onDragOver={(e) => {
+        if (!hasFiles(e)) return;
         e.preventDefault();
         setDropping(true);
       }}
@@ -622,7 +684,8 @@ export function Workbench() {
                     {f.name.split("/").pop()}
                     {f.edited && <span className="text-[11px] text-faint">edited</span>}
                     {r.kind && (
-                      <span className="font-semibold" style={{ color: gradeTone(r.grade) }} aria-label={`grade ${r.grade}`}>
+                      <span className="relative font-semibold" style={{ color: gradeTone(r.grade) }}>
+                        <span className="sr-only">grade </span>
                         {r.grade}
                       </span>
                     )}
@@ -639,7 +702,8 @@ export function Workbench() {
                   if (!name) return;
                   const f = addFile(name, "");
                   setNewName(null);
-                  open(f.id);
+                  if (f) open(f.id);
+                  else setSkipped([`${name} (browser storage full)`]);
                 }}
               >
                 <input autoFocus className="field mono h-8 w-48 text-[12.5px]" placeholder="Dockerfile, nginx.conf…" value={newName} onChange={(e) => setNewName(e.target.value)} onBlur={() => !newName.trim() && setNewName(null)} aria-label="New file name" />
@@ -654,6 +718,11 @@ export function Workbench() {
             </button>
             <input ref={upload} type="file" multiple className="hidden" onChange={async (e) => (await addFrom(e.target.files ?? []), (e.target.value = ""))} />
           </div>
+        )}
+        {lastSaveFailed() && (
+          <p className="mb-2 rounded-[6px] border border-[var(--crit)] px-3 py-2 text-[13px] text-[var(--crit)]" role="alert">
+            Not saved: this browser's storage is full or blocked. Changes will be lost when you close the page, so download the files you want to keep.
+          </p>
         )}
         {skipped.length > 0 && (
           <p className="mb-2 flex flex-wrap items-center gap-2 rounded-[6px] border border-[var(--med)] px-3 py-2 text-[13px] text-[var(--med)]" role="alert">
@@ -684,8 +753,8 @@ export function Workbench() {
                           value=""
                           onChange={(e) => {
                             const k = e.target.value as Kind;
-                            removeFile(active.id);
-                            open(addFile(active.name, active.text, k).id);
+                            const typed = addFile(active.name, active.text, k);
+                            if (typed) open(typed.id);
                           }}
                           aria-label="File type"
                         >
@@ -768,7 +837,22 @@ export function Workbench() {
               </div>
 
               {mode === "annotated" ? (
-                <Editor key={active.id} file={active} report={report} notes={notes} text={active.text} onChange={(t) => saveText(active.id, t)} jump={jump} onCursor={(line, col) => setCursor({ line, col })} onApply={apply} onRead={readNote} />
+                <Editor
+                  key={active.id}
+                  file={active}
+                  report={report}
+                  notes={notes}
+                  text={active.text}
+                  onChange={(t) => {
+                    if (!saveText(active.id, t)) {
+                      setSkipped([`Edit to ${active.name} (over the size limit)`]);
+                      return;
+                    }
+                    if (toast?.undo?.id === active.id) setToast(null);
+                  }}
+                  jump={jump}
+                  onJumped={() => setJump(null)}
+                  onCursor={(line, col) => setCursor({ line, col })} onApply={apply} onRead={readNote} />
               ) : (
                 <Preview
                   key={active.id}
@@ -777,9 +861,9 @@ export function Workbench() {
                   text={active.text}
                   onApplied={(next, label) => {
                     const before = active.text;
-                    saveText(active.id, next);
+                    if (!saveText(active.id, next)) return;
                     setMode("annotated");
-                    setToast({ text: `Applied ${label}.`, undo: { id: active.id, text: before } });
+                    setToast({ text: `Applied ${label}.`, undo: { id: active.id, text: before, after: next } });
                   }}
                 />
               )}
@@ -817,7 +901,8 @@ export function Workbench() {
             <button
               className="text-[13px] font-semibold text-accent underline-offset-2 hover:underline"
               onClick={() => {
-                saveText(toast.undo!.id, toast.undo!.text);
+                const u = toast.undo!;
+                if (findFile(u.id)?.text === u.after) saveText(u.id, u.text);
                 setToast(null);
               }}
             >
