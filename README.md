@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/kon.svg" width="100%" alt="Redline: Security review for config files. A plush lion in a black robe, headphones and sunglasses.">
+  <img src="docs/kon.svg" width="100%" alt="Redline. A plush orange lion in headphones and sunglasses panics, changes into a robed swordsman and slashes the hollows breaking out of the sky.">
 </p>
 
 # Redline · Security review for config files
