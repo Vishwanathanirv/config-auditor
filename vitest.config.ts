@@ -3,5 +3,5 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: { alias: { "@redline/core": path.resolve(__dirname, "packages/core/src/index.ts") } },
-  test: { include: ["packages/*/test/**/*.test.ts", "apps/api/test/**/*.test.ts"], testTimeout: 60_000 },
+  test: { include: ["packages/*/test/**/*.test.ts", "apps/api/test/**/*.test.ts", "apps/web/test/**/*.test.ts"], testTimeout: 60_000 },
 });

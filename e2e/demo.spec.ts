@@ -16,7 +16,7 @@ test("the example Dockerfile opens annotated, and a line fix can be undone", asy
   await expect(page.getByText("Container runs as root").first()).toBeVisible();
 
   await page.getByRole("button", { name: /^Findings on line 19/ }).click();
-  await page.getByRole("menuitem", { name: /Fix: CMD in shell form/ }).click();
+  await page.getByRole("button", { name: /Fix: CMD in shell form/ }).click();
   await expect(editor(page)).toHaveValue(/CMD \["npm", "start"\]/);
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(editor(page)).toHaveValue(/CMD npm start/);
@@ -109,3 +109,36 @@ for (const path of ["/", "/?file=sample:nginx/shop.conf", "/rules", "/bench", "/
     expect(r.violations.map((v) => `${v.id}: ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
   });
 }
+
+test("a corrupt saved workspace does not break the page", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("redline-files-v1", JSON.stringify([null, { name: 3 }, "x"]));
+    localStorage.setItem("redline-edits-v1", "[1,2]");
+  });
+  await page.goto("/");
+  await expect(page.getByRole("tab", { name: /Dockerfile/, selected: true })).toBeVisible();
+});
+
+test("the line menu takes focus and Escape returns it; Escape then Tab leaves the editor", async ({ page }) => {
+  await page.goto("/");
+  const marker = page.getByRole("button", { name: /^Findings on line 19/ });
+  await marker.click();
+  await expect(page.getByRole("button", { name: /Fix: CMD in shell form/ })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(marker).toBeFocused();
+
+  await editor(page).click();
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Tab");
+  await expect(editor(page)).not.toBeFocused();
+});
+
+test("undo is withdrawn once the file is edited by hand", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /^Findings on line 19/ }).click();
+  await page.getByRole("button", { name: /Fix: CMD in shell form/ }).click();
+  await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
+  await editor(page).press("End");
+  await editor(page).pressSequentially(" ");
+  await expect(page.getByRole("button", { name: "Undo" })).toHaveCount(0);
+});

@@ -101,8 +101,8 @@ Requires Node 22.13+.
 ```bash
 npm install
 npm run dev          # web on :5173, API on :8080
-npm test             # 94 unit and API tests
-npm run test:e2e     # 15 browser tests (Playwright), including axe accessibility checks
+npm test             # 98 unit and API tests
+npm run test:e2e     # 18 browser tests (Playwright), including axe accessibility checks
 npm run evaluate     # rebuild the test bench report
 npm run bench        # precision and recall on KICS and gixy test files
 ```
