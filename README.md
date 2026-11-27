@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/kon.svg" width="100%" alt="Redline: Security review for config files. A plush lion in a black robe, headphones and sunglasses.">
+</p>
+
 # Redline · Security review for config files
 
 Redline reviews the config files that decide how secure a server is (**Dockerfiles, Docker Compose, Kubernetes manifests, nginx and sshd_config**). Every problem is underlined on its line and numbered in the gutter, with its severity, why it matters and how to fix it, plus a grade from A to F. It all updates as you type. For 37 of the 60 rules Redline writes the fix too, so you get a corrected file or a patch you can apply with `git apply`.
