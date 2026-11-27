@@ -24,6 +24,7 @@
     "build:demo": "npm run build:demo -w apps/web",
     "test:e2e": "npm run build:demo && playwright test",
     "bench": "tsx scripts/bench.ts",
+    "timing": "tsx scripts/timing.ts",
     "bench:fetch": "tsx bench/fetch.ts"
   },
   "devDependencies": {

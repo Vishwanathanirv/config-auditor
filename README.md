@@ -170,10 +170,41 @@ Import the repository into Vercel. `vercel.json` builds the static site, which r
 
 ## Limits
 
+- **Rules:** 60 in total. 37 have an automatic fix; 23 report only. By type (rules, with fix): Dockerfile 14 (6), Compose 8 (3), Kubernetes 15 (7), nginx 11 (10), sshd 12 (11).
+- **Not covered:** runtime state, images and their contents, Terraform, CloudFormation, Helm charts, and anything outside the five file types.
+- **Not a clean bill of health:** an A grade means none of the 60 rules fired, not that the config is secure.
 - One file at a time: Redline doesn't follow `Include` in nginx or sshd, and doesn't connect a compose file to the Dockerfile it builds.
 - Kubernetes checks read plain manifests. Helm templates need `helm template` first; Kustomize needs `kustomize build`.
 - Some problems need a person: Redline won't guess which version to pin or how much memory a pod needs, so those findings come without a fix.
 - Fixes that change behaviour (a non-root user, a read-only filesystem) should be tested before shipping.
+- sshd has no public labelled test suite, so it is covered only by this repository's own tests.
+
+The threat model and what is not defended are in [SECURITY.md](SECURITY.md).
+
+## Why TypeScript
+
+Redline parses untrusted files, so its parsers are plain text-to-data functions with no execution or file access. TypeScript lets the same rule code run in the browser, the CLI, the API and the Action, and the CLI ships as one dependency-free file. Memory safety comes from the runtime; correctness comes from the typed rule tables and the tests. The cost is Node as a requirement.
+
+## Measured
+
+Developer laptop (Windows 11), Node v24.21.0, 2026-11-27. Times differ on other machines.
+
+`npm run timing` (`scripts/timing.ts`): time for one `audit()` call, 50 runs after 5 warm-up runs. **Synthetic inputs:** each built-in sample repeated N times (YAML as separate documents), so they are not real-world files.
+
+| Input | Size | Lines | p50 | p99 |
+| --- | ---: | ---: | ---: | ---: |
+| Dockerfile x1 | 0.4 KB | 20 | 0.17 ms | 0.34 ms |
+| Dockerfile x100 | 42.6 KB | 1,901 | 6.67 ms | 10.23 ms |
+| Compose x1 | 0.6 KB | 34 | 1.93 ms | 4.03 ms |
+| Compose x100 | 60.3 KB | 3,400 | 108.33 ms | 272.05 ms |
+| Kubernetes x1 | 1.0 KB | 56 | 2.12 ms | 6.23 ms |
+| Kubernetes x100 | 103.0 KB | 5,600 | 252.24 ms | 384.05 ms |
+| nginx x1 | 1.0 KB | 45 | 0.46 ms | 12.17 ms |
+| nginx x100 | 96.7 KB | 4,401 | 24.52 ms | 90.70 ms |
+| sshd x1 | 0.4 KB | 16 | 0.10 ms | 0.25 ms |
+| sshd x100 | 36.1 KB | 1,501 | 2.93 ms | 4.70 ms |
+
+The command also prints the x10 rows and findings per rule over the 25 labelled fixtures: 72 findings, and all 60 rules fire at least once. Accuracy numbers are under Results (`npm run evaluate`, `npm run bench`). Not measured: memory use, and time near the API's 500,000-character cap.
 
 ## Tech stack
 
